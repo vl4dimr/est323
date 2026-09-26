@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EST323 · Ingeniería de Software II</title>
+<meta name="description" content="Materiales de clase de Ingeniería de Software II, FINESI, UNA Puno.">
+<style>
+  :root{
+    --papel:#FCFBF9; --tinta:#16181C; --gris:#767A82; --gris-2:#A6AAB1;
+    --linea:#E4E1DB; --acento:#C8501E;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --papel:#141416; --tinta:#EDEBE7; --gris:#9A9EA6; --gris-2:#6E727A;
+           --linea:#2B2C30; --acento:#E4703F; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--sans);
+       line-height:1.55;-webkit-font-smoothing:antialiased}
+  .marco{max-width:860px;margin:0 auto;padding:0 24px}
+  .rotulo{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
+          color:var(--gris-2);margin:0}
+  hr{border:0;border-top:1px solid var(--linea);margin:0}
+
+  header{padding:38px 0 0}
+  header .rotulo + .rotulo{margin-top:4px;color:var(--gris)}
+  header hr{margin-top:26px}
+
+  h1{font-family:var(--serif);font-weight:400;line-height:1.05;
+     font-size:clamp(2.3rem,7.5vw,4rem);margin:58px 0 0;letter-spacing:-.01em}
+  h1 span{display:block;color:var(--acento)}
+  .cuando{max-width:34em;margin:26px 0 0;color:var(--gris);font-size:1rem}
+  .cuando b{color:var(--tinta);font-weight:600}
+
+  .lista{margin:52px 0 0}
+  a.fila{display:grid;grid-template-columns:2.6rem 13rem 1fr;gap:0 1.4rem;
+         align-items:baseline;padding:18px 0;text-decoration:none;color:inherit;
+         border-bottom:1px solid var(--linea);transition:background-color .12s}
+  .lista > a.fila:first-child{border-top:1px solid var(--linea)}
+  a.fila:hover{background:rgba(200,80,30,.05)}
+  a.fila .n{font-size:.72rem;letter-spacing:.18em;color:var(--acento);font-weight:600}
+  a.fila .t{font-family:var(--serif);font-size:1.12rem}
+  a.fila:hover .t{color:var(--acento)}
+  a.fila .d{color:var(--gris);font-size:.94rem}
+
+  .aviso{margin:44px 0 0;padding-top:20px;position:relative;color:var(--gris);
+         font-size:.94rem;max-width:44em}
+  .aviso::before{content:"";position:absolute;top:0;left:0;width:96px;height:2px;
+                 background:var(--acento)}
+  .aviso b{color:var(--tinta);font-weight:600}
+
+  /* footer.marco y no footer: .marco lleva «margin:0 auto» y, por ser clase,
+     gana en especificidad a un selector de elemento y anula la separación */
+  footer.marco{margin-top:76px;padding:22px 0 46px;border-top:1px solid var(--linea);
+         display:flex;flex-wrap:wrap;gap:8px 28px;justify-content:space-between}
+  footer p{margin:0;font-size:.85rem;color:var(--gris-2)}
+
+  @media (max-width:640px){
+    a.fila{grid-template-columns:2.2rem 1fr;gap:2px 1rem}
+    a.fila .n{grid-row:span 2}
+    h1{margin-top:40px}
+    .lista{margin-top:38px}
+  }
+</style>
+</head>
+<body>
+
+<header class="marco">
+  <p class="rotulo">Universidad Nacional del Altiplano · FINESI</p>
+  <p class="rotulo">EST323 · Ingeniería de Software II · 2026-II</p>
+  <hr>
+</header>
+
+<main class="marco">
+  <h1>Los requisitos<span>de la aplicación web</span></h1>
+
+  <p class="cuando">Sesión 3 · <b>Sábado 26 de setiembre, de 06:00 a 08:00</b>, por
+  videoconferencia. Se trabaja en salas de tres, con la cámara encendida.</p>
+
+  <nav class="lista">
+    <a class="fila" href="sesion3/taller/">
+      <span class="n">01</span>
+      <span class="t">Taller de requisitos</span>
+      <span class="d">Ábrelo con un clic. Las tres herramientas de hoy, cada una con su
+      consigna. Basta con que una persona del equipo lo abra y comparta pantalla.</span>
+    </a>
+    <a class="fila" href="sesion3/archivos/Hoja_taller_sesion3_EST323.docx">
+      <span class="n">02</span>
+      <span class="t">Hoja del taller</span>
+      <span class="d">Una por equipo. Se llena en digital durante la sesión y va dentro del
+      PDF de la entrega.</span>
+    </a>
+    <a class="fila" href="sesion3/archivos/Plantilla_Catalogo_Requisitos_EST323.docx">
+      <span class="n">03</span>
+      <span class="t">Plantilla del catálogo</span>
+      <span class="d">La entrega calificada de hoy. Un solo PDF por equipo, al aula virtual,
+      antes de las 07:52.</span>
+    </a>
+    <a class="fila" href="sesion3/archivos/Material3_Requisitos_EST323.pdf">
+      <span class="n">04</span>
+      <span class="t">Material 3</span>
+      <span class="d">Las dieciséis láminas, con las instrucciones de cada taller y un ejemplo
+      resuelto. Sirve para ponerse al día.</span>
+    </a>
+  </nav>
+
+  <p class="aviso">El taller se abre en el navegador y no necesita instalar nada. Si tu
+  conexión es floja, ábrelo una vez y guárdalo con <b>Ctrl&nbsp;+&nbsp;S</b>: desde ahí
+  funciona sin internet, también en el celular.</p>
+</main>
+
+<footer class="marco">
+  <p>Facultad de Ingeniería Estadística e Informática · Puno</p>
+  <p>Mg. Milton Vladimir Mamani Calisaya</p>
+</footer>
+
+</body>
+</html>

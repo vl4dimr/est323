@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="oscuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taller de requisitos · EST323 · Sesión 3</title>
+<style>
+/* Mismo sistema de color de la clase, en una página para trabajar: se abre en la
+   laptop o en el celular de cada equipo y cada herramienta trae su consigna. */
+:root{
+  --stage:#121A3B; --tinta:#F2EFE7; --oro:#F3C912; --lago:#79C4E0;
+  --gris:#9AA3C0; --linea:rgba(242,239,231,.18); --suave:rgba(242,239,231,.06);
+  --alerta:#E8735A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--stage);color:var(--tinta);line-height:1.45;
+  font-family:Calibri,"Segoe UI",system-ui,-apple-system,sans-serif}
+a{color:var(--lago)}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--oro);outline-offset:3px}
+header.sitio{max-width:1080px;margin:0 auto;padding:34px 26px 8px;border-bottom:1px solid var(--linea)}
+.curso{margin:0 0 10px;font-size:14px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--oro)}
+h1{margin:0;font-family:Cambria,Georgia,serif;font-weight:400;font-size:40px;line-height:1.12;letter-spacing:-.02em}
+header.sitio p{margin:14px 0 22px;font-size:18px;color:var(--gris);max-width:72ch}
+nav{max-width:1080px;margin:18px auto 0;padding:0 26px;display:flex;flex-wrap:wrap;gap:10px}
+nav a{padding:9px 14px;border:1px solid var(--linea);border-radius:999px;font-size:15px;font-weight:600;text-decoration:none;color:var(--tinta)}
+nav a:hover{border-color:var(--oro);color:var(--oro)}
+main{max-width:1080px;margin:0 auto;padding:0 26px 60px}
+section{margin-top:44px;padding-top:26px;border-top:1px solid var(--linea);scroll-margin-top:16px}
+h2{margin:0;font-family:Cambria,Georgia,serif;font-weight:400;font-size:29px;line-height:1.2}
+.kicker{margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--oro)}
+section>p.intro{margin:10px 0 0;font-size:17px;color:var(--gris);max-width:78ch}
+.panel{margin-top:18px;padding:20px;background:var(--suave);border:1px solid var(--linea);border-radius:10px}
+.fila{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{padding:9px 15px;border:1px solid var(--linea);border-radius:7px;background:transparent;color:var(--tinta);font-size:15px}
+.btn:hover{border-color:var(--oro);color:var(--oro)}
+.btn.oro,.btn[aria-pressed="true"]{border-color:var(--oro);color:var(--oro)}
+input[type=text]{flex:1;min-width:260px;padding:10px 12px;border:1px solid var(--linea);border-radius:7px;
+  background:rgba(0,0,0,.2);color:var(--tinta);font:inherit;font-size:16px}
+table{width:100%;margin-top:14px;border-collapse:collapse;font-size:15px}
+th,td{padding:9px 11px;border-bottom:1px solid var(--linea);text-align:left;vertical-align:top}
+th{color:var(--oro);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.salida{margin-top:14px;font-size:16px;color:var(--gris);min-height:2.6em;max-width:86ch}
+.salida b{color:var(--lago)}.salida .alerta{color:var(--alerta)}
+.frase{font-size:19px;line-height:1.5;margin:0 0 6px}
+.turno{margin-top:18px;padding:15px 18px;border-left:4px solid var(--oro);background:rgba(243,201,18,.07);border-radius:0 8px 8px 0}
+.turno h3{margin:0 0 8px;font-size:14px;letter-spacing:.09em;text-transform:uppercase;color:var(--oro)}
+.turno ol{margin:0;padding-left:20px;font-size:16px}
+.turno li{margin-bottom:5px}
+.quizOps{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.op{text-align:left;padding:11px 13px;border:1px solid var(--linea);border-radius:8px;background:transparent;color:var(--tinta);font-size:16px}
+.op:hover{border-color:var(--oro)}
+.op.bien{border-color:var(--lago);color:var(--lago);background:rgba(121,196,224,.12)}
+.op.mal{border-color:var(--alerta);color:var(--alerta);background:rgba(232,115,90,.12)}
+.lectura{margin-left:auto;font-size:15px;color:var(--gris)}
+.lectura b{color:var(--lago)}
+footer{max-width:1080px;margin:36px auto 0;padding:20px 26px 40px;border-top:1px solid var(--linea);font-size:14px;color:var(--gris)}
+@media(max-width:760px){.quizOps{grid-template-columns:1fr}h1{font-size:30px}.lectura{margin-left:0}}
+</style>
+</head>
+<body>
+<header class="sitio">
+  <p class="curso">EST323 · Ingeniería de Software II · Sesión 3</p>
+  <h1>Taller de requisitos</h1>
+  <p>Tres herramientas para trabajar en equipo. Ábranlas en una laptop o en el celular: no necesitan
+  internet. Cada una dice qué hay que hacer y qué hay que anotar en la hoja del equipo.</p>
+</header>
+<nav aria-label="Índice del taller">
+  <a href="#detector">A · Detector de frases vagas</a>
+  <a href="#control">B · Control rápido</a>
+  <a href="#tablero">C · ¿Qué entra en la vuelta 01?</a>
+</nav>
+<main>
+
+<section id="detector">
+  <p class="kicker">Herramienta A · Taller 1</p>
+  <h2>Las palabras que no se pueden programar</h2>
+  <p class="intro">Escriban lo que dijo el cliente y la herramienta marca las palabras que no tienen
+  forma de probarse, con la pregunta que hay que hacerle y un ejemplo de cómo quedaría el requisito.</p>
+  <div class="panel">
+    <div class="fila">
+      <input type="text" id="vagoTexto" value="Quiero un sistema moderno y rápido, que sea fácil de usar y seguro">
+      <button class="btn oro" id="btnVago">Revisar</button>
+      <button class="btn" id="btnVagoEj">Otra frase del cliente</button>
+    </div>
+    <div id="vagoSalida" style="margin-top:14px"></div>
+  </div>
+  <div class="turno">
+    <h3>Tu turno · equipo</h3>
+    <ol>
+      <li>Revisen las cinco frases del cliente de la biblioteca, una por una.</li>
+      <li>Para cada una escriban en la hoja: el enunciado verificable, si es funcional o no funcional,
+      y la pregunta que le harían al cliente para llenar el número que falta.</li>
+      <li>Pasen por la herramienta una frase que ustedes hayan escrito: si todavía marca algo en rojo,
+      todavía no es un requisito.</li>
+      <li>Anoten los supuestos que tuvieron que inventar. Esos son preguntas abiertas, no decisiones.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="control">
+  <p class="kicker">Herramienta B · puesta en común</p>
+  <h2>¿Funcional, no funcional o ni siquiera es un requisito?</h2>
+  <p class="intro">Seis enunciados. Respondan en equipo antes de marcar; la explicación aparece al marcar.</p>
+  <div class="panel" id="quiz"></div>
+  <div class="turno">
+    <h3>Tu turno · equipo</h3>
+    <ol>
+      <li>Anoten cuántos acertaron de los seis.</li>
+      <li>Copien en la hoja el enunciado que más discutieron y por qué.</li>
+      <li>Busquen en su propio catálogo un requisito que tenga el mismo defecto.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="tablero">
+  <p class="kicker">Herramienta C · Taller 3</p>
+  <h2>¿Qué entra en la vuelta 01?</h2>
+  <p class="intro">Diez requisitos candidatos de la biblioteca, cada uno con su esfuerzo. Tienen tres
+  semanas y una capacidad de veinte puntos. Marquen lo que entra.</p>
+  <div class="panel">
+    <div id="moscowLista"></div>
+    <div class="fila" style="margin-top:14px">
+      <button class="btn" id="moscowLimpiar">Vaciar la vuelta 01</button>
+      <span class="lectura">esfuerzo elegido: <b id="moscowPuntos">0</b> de 20 puntos <span id="moscowEstado"></span></span>
+    </div>
+    <p class="salida" id="moscowSalida"></p>
+  </div>
+  <div class="turno">
+    <h3>Tu turno · equipo</h3>
+    <ol>
+      <li>Decidan su vuelta 01 en el tablero y anoten los números en la hoja.</li>
+      <li>Escriban en una línea a quién le sirve el día que se publique, y qué va a poder hacer que hoy no puede.</li>
+      <li>Repitan el ejercicio con su propio proyecto: ¿cuál sería su vuelta 01 y cuánto esfuerzo tiene?</li>
+      <li>Nombren una cosa que dejan fuera a propósito. Esa decisión va en el catálogo, con su razón.</li>
+    </ol>
+  </div>
+</section>
+
+</main>
+<footer>
+  <p>EST323 · Ingeniería de Software II · FINESI · UNA Puno · Docente: Milton Vladimir Mamani Calisaya.
+  El caso de la biblioteca es el mismo de la sesión 2. Esta página no guarda nada: lo que importa se
+  anota en la hoja del equipo.</p>
+</footer>
+
+<script>
+(function(){
+  var esc = function(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;')};
+
+  /* ---------- A · detector de frases vagas ---------- */
+  var VAGAS={
+    'rápido':      ['¿En cuántos segundos y con cuántos usuarios a la vez?','La búsqueda del catálogo responde en menos de 2 segundos con 50 usuarios simultáneos.'],
+    'lento':       ['¿Desde qué tiempo de respuesta se considera inaceptable?','Ninguna operación del catálogo supera los 3 segundos en hora punta.'],
+    'moderno':     ['¿Moderno comparado con qué? ¿Qué debería poder hacer que hoy no se puede?','El catálogo se consulta desde el navegador del celular, sin instalar nada.'],
+    'amigable':    ['¿Cómo sabremos que lo fue? ¿Qué tarea, en cuánto tiempo, con qué tasa de error?','Un estudiante que nunca usó el sistema encuentra un libro por título en menos de 1 minuto, sin ayuda.'],
+    'fácil':       ['¿Fácil para quién y midiendo qué?','8 de cada 10 estudiantes completan una reserva sin consultar el manual.'],
+    'sencillo':    ['¿Cuántos pasos debería tener la tarea?','La reserva se completa en tres pasos desde la ficha del libro.'],
+    'intuitivo':   ['No es medible tal cual. ¿Qué tarea debe lograrse sin capacitación?','El bibliotecario registra una devolución sin capacitación previa, guiado por la pantalla.'],
+    'seguro':      ['¿Seguro frente a qué amenaza, y qué dato protege?','Las contraseñas se almacenan con hash y la sesión expira tras 20 minutos de inactividad.'],
+    'eficiente':   ['¿Eficiente en qué recurso: tiempo, memoria, dinero, personal?','El servidor atiende 200 consultas por minuto con 2 GB de memoria.'],
+    'flexible':    ['¿Qué tendría que poder cambiar sin reprogramar?','El bibliotecario cambia el plazo de préstamo desde la configuración, sin tocar el código.'],
+    'escalable':   ['¿Hasta cuántos usuarios o registros, y para cuándo?','El catálogo soporta 20 000 títulos y 300 usuarios concurrentes sin degradar el tiempo de respuesta.'],
+    'robusto':     ['¿Qué debe pasar cuando algo falla?','Si la base no responde, el catálogo muestra el último resultado en caché y avisa que está desactualizado.'],
+    'completo':    ['¿Qué información exacta lleva y en qué formato sale?','El reporte mensual incluye préstamos por carrera y ejemplares vencidos, exportable a PDF y hoja de cálculo.'],
+    'adecuado':    ['¿Adecuado según qué criterio y según quién?','El plazo de préstamo es de 7 días para estudiantes y 30 para docentes.'],
+    'óptimo':      ['¿Óptimo respecto de qué variable?','La búsqueda devuelve como primer resultado el título exacto cuando la coincidencia es literal.'],
+    'mejor':       ['¿Mejor que qué cosa, medido cómo?','El tiempo de atención en el mostrador baja de 4 a 2 minutos por préstamo.'],
+    'siempre':     ['¿Admite excepciones? ¿Qué porcentaje del tiempo es aceptable?','El catálogo está disponible el 99 % de las horas del semestre académico.'],
+    'disponible':  ['¿Qué porcentaje del tiempo y en qué horario?','El servicio está disponible de 07:00 a 23:00, con 99 % de disponibilidad medida por mes.'],
+    'varios':      ['¿Cuántos exactamente?','El usuario mantiene hasta 3 reservas activas.'],
+    'algunos':     ['¿Cuáles, nombrados uno por uno?','Los roles son estudiante, docente y bibliotecario.'],
+    'muchos':      ['¿Cuántos, como mínimo?','El sistema admite 300 usuarios concurrentes.'],
+    'etcétera':    ['La lista tiene que estar cerrada: ¿qué más entra?','Los formatos aceptados son PDF, EPUB y DOCX, y ninguno más.'],
+    'usuario final':['¿Qué rol concreto? En la biblioteca hay cuatro interesados distintos.','El estudiante de pregrado consulta el catálogo sin iniciar sesión.']
+  };
+  var EJEMPLOS=[
+    'Quiero un sistema moderno y rápido, que sea fácil de usar y seguro',
+    'Necesito reportes completos para presentar a la facultad',
+    'El catálogo tiene que estar siempre disponible para varios usuarios',
+    'Que la aplicación sea intuitiva y que maneje muchos libros, etcétera',
+    'Que sea flexible y escalable, y que el usuario final no se pierda'
+  ];
+  var iEjemplo=0;
+  function pintarVago(){
+    var t=document.getElementById('vagoTexto').value;
+    var marcadas=[], resaltado=esc(t);
+    Object.keys(VAGAS).forEach(function(w){
+      var re=new RegExp('('+w.replace(' ','\\s+')+')','gi');
+      if(re.test(resaltado)){
+        marcadas.push(w);
+        resaltado=resaltado.replace(re,'<span style="color:var(--alerta);border-bottom:2px solid var(--alerta)">$1</span>');
+      }
+    });
+    var filas=marcadas.slice(0,6).map(function(w){
+      return '<tr><td style="color:var(--alerta)">'+w+'</td><td>'+VAGAS[w][0]+'</td><td>'+VAGAS[w][1]+'</td></tr>';
+    }).join('');
+    document.getElementById('vagoSalida').innerHTML=
+      '<p class="frase">«'+resaltado+'»</p>'+
+      (marcadas.length
+        ? '<p class="salida" style="min-height:0">'+marcadas.length+' palabra(s) sin forma de probarse. Lo que hay que preguntar:</p>'+
+          '<table><tr><th>Palabra</th><th>La pregunta al cliente</th><th>Cómo quedaría el requisito</th></tr>'+filas+'</table>'
+        : '<p class="salida" style="min-height:0">Ninguna palabra vaga detectada. Ahora la prueba de verdad: <b>¿pueden imaginar el caso de prueba que declararía cumplido este requisito?</b> Si no, todavía falta un número o una condición.</p>');
+  }
+  document.getElementById('btnVago').onclick=pintarVago;
+  document.getElementById('vagoTexto').addEventListener('keydown',function(e){if(e.key==='Enter')pintarVago()});
+  document.getElementById('btnVagoEj').onclick=function(){
+    iEjemplo=(iEjemplo+1)%EJEMPLOS.length;
+    document.getElementById('vagoTexto').value=EJEMPLOS[iEjemplo];
+    pintarVago();
+  };
+
+  /* ---------- B · control rápido ---------- */
+  var PREGUNTAS=[
+    {q:'«El sistema permite renovar un préstamo si el ejemplar no tiene reservas pendientes.»',
+     o:['Funcional','No funcional','No es un requisito','Funcional, pero mal escrito'],c:0,
+     p:'<b>Funcional.</b> Dice qué hace el sistema y trae la condición que lo limita. Se prueba ejecutando la acción con y sin reservas pendientes.'},
+    {q:'«La búsqueda del catálogo responde en menos de 2 segundos con 50 usuarios simultáneos.»',
+     o:['No funcional','Funcional','No es un requisito','Funcional, pero mal escrito'],c:0,
+     p:'<b>No funcional.</b> La función —buscar— ya existe; esto fija la cualidad con la que debe cumplirse, con número y forma de medirlo.'},
+    {q:'«La interfaz será amigable e intuitiva para el usuario final.»',
+     o:['No es un requisito','No funcional','Funcional','Funcional, pero mal escrito'],c:0,
+     p:'<b>No es un requisito todavía.</b> No hay prueba que lo declare cumplido y «usuario final» no nombra a ninguno de los cuatro interesados.'},
+    {q:'«Usaremos MongoDB porque es lo que el equipo ya sabe manejar.»',
+     o:['No es un requisito: es una decisión técnica','No funcional','Funcional','Es un requisito del cliente'],c:0,
+     p:'<b>Decisión de diseño.</b> Va en la hoja de decisiones técnicas. Si la universidad <em>obliga</em> a usar PostgreSQL, eso sí es una restricción del cliente.'},
+    {q:'«El catálogo estará disponible el 99 % de las horas del semestre académico.»',
+     o:['No funcional','Funcional','No es un requisito','Funcional, pero mal escrito'],c:0,
+     p:'<b>No funcional.</b> Disponibilidad, con número y ventana de medición. Ojo: 1 % de un semestre son varias horas, y hay que acordar si pueden ser en horario de clases.'},
+    {q:'«El sistema registra la devolución y notifica al usuario por correo.»',
+     o:['Funcional, pero mal escrito: son dos','Funcional y bien escrito','No funcional','No es un requisito'],c:0,
+     p:'<b>Son dos requisitos.</b> Se prueban y se estiman por separado, y pueden entrar en vueltas distintas. La «y» en medio suele ser la señal de que hay que partirlo.'}
+  ];
+  var iQ=0, aciertos=0, orden=null;
+  function barajar(n){var a=[];for(var k=0;k<n;k++)a.push(k);
+    for(var j=a.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1)),t=a[j];a[j]=a[r];a[r]=t}return a}
+  function pintarQuiz(estado, elegida){
+    var it=PREGUNTAS[iQ];
+    if(!estado)orden=barajar(it.o.length);
+    var ops=orden.map(function(k){
+      var clase='op'; if(estado){clase+=k===it.c?' bien':(k===elegida?' mal':'')}
+      return '<button class="'+clase+'" data-k="'+k+'">'+esc(it.o[k])+'</button>';
+    }).join('');
+    document.getElementById('quiz').innerHTML=
+      '<div class="fila"><span style="font-size:15px;color:var(--gris)">'+(iQ+1)+' de '+PREGUNTAS.length+'</span>'+
+      '<span class="lectura">'+aciertos+' correctas</span></div>'+
+      '<p class="frase" style="margin-top:10px">'+esc(it.q)+'</p>'+
+      '<div class="quizOps">'+ops+'</div>'+
+      '<p class="salida">'+(estado?it.p:'Respondan en equipo antes de marcar.')+'</p>'+
+      (estado?'<div class="fila"><button class="btn" id="quizSig">'+(iQ<PREGUNTAS.length-1?'Siguiente':'Empezar de nuevo')+'</button></div>':'');
+    if(!estado){
+      [].slice.call(document.querySelectorAll('#quiz .op')).forEach(function(b){
+        b.onclick=function(){var k=+b.dataset.k; if(k===it.c)aciertos++; pintarQuiz(true,k)};
+      });
+    }else{
+      document.getElementById('quizSig').onclick=function(){
+        if(iQ<PREGUNTAS.length-1){iQ++}else{iQ=0;aciertos=0}
+        pintarQuiz(false);
+      };
+    }
+  }
+
+  /* ---------- C · qué entra en la vuelta 01 ---------- */
+  var CAPACIDAD=20;
+  var ITEMS=[
+    {t:'Buscar un libro por título o autor', p:5, sirve:true, q:'Es lo que el estudiante viene a hacer.'},
+    {t:'Ver cuántos ejemplares están disponibles', p:3, sirve:true, q:'Evita el viaje en vano: valor real desde el primer día.'},
+    {t:'Crear cuenta e iniciar sesión', p:4, sirve:false, q:'Habilitador. Solo, no le sirve a nadie: nadie abre una cuenta para mirarla.'},
+    {t:'Reservar un ejemplar por 48 horas', p:6, sirve:true, q:'Valor alto, pero depende de la cuenta: cuesta 4 + 6 puntos.'},
+    {t:'Aviso de vencimiento por correo', p:5, sirve:true, q:'Le sirve al estudiante distraído y baja la mora.'},
+    {t:'Reporte mensual de préstamos por carrera', p:6, sirve:true, q:'Le sirve al bibliotecario y al jefe, que son quienes firman.'},
+    {t:'Aplicación móvil nativa', p:12, sirve:true, q:'Doce puntos de veinte por algo que el navegador del celular ya resuelve.'},
+    {t:'Migrar el Excel desactualizado al catálogo', p:4, sirve:false, q:'Habilitador imprescindible: sin datos no hay búsqueda que probar.'},
+    {t:'Registrar la devolución en el mostrador', p:5, sirve:true, q:'Le sirve al bibliotecario desde el día uno.'},
+    {t:'Recomendaciones personalizadas de lectura', p:9, sirve:true, q:'Deseable. En la vuelta 01 es una distracción cara.'}
+  ];
+  var elegidos={};
+  function pintarMoscow(){
+    var puntos=0, hayValor=false;
+    document.getElementById('moscowLista').innerHTML='<table><tr><th>Requisito candidato</th><th>Esfuerzo</th><th>Vuelta 01</th></tr>'+
+      ITEMS.map(function(it,k){
+        if(elegidos[k]){puntos+=it.p; if(it.sirve)hayValor=true}
+        return '<tr><td>'+it.t+'</td><td>'+it.p+'</td>'+
+          '<td><button class="btn'+(elegidos[k]?' oro':'')+'" style="padding:5px 11px;font-size:14px" data-k="'+k+'">'+
+          (elegidos[k]?'entra':'después')+'</button></td></tr>';
+      }).join('')+'</table>';
+    [].slice.call(document.querySelectorAll('#moscowLista button')).forEach(function(b){
+      b.onclick=function(){var k=+b.dataset.k; elegidos[k]=!elegidos[k]; pintarMoscow()};
+    });
+    document.getElementById('moscowPuntos').textContent=puntos;
+    var estado=document.getElementById('moscowEstado'), salida=document.getElementById('moscowSalida');
+    if(puntos>CAPACIDAD){
+      estado.innerHTML=' · <b class="alerta">se pasaron por '+(puntos-CAPACIDAD)+'</b>';
+      salida.innerHTML='<span class="alerta">No entra.</span> Con '+puntos+' puntos en tres semanas van a llegar al día de la entrega con todo a medias, que es peor que entregar dos cosas terminadas. Quiten algo <b>ahora</b>.';
+    }else if(!puntos){
+      estado.innerHTML='';
+      salida.innerHTML='Marquen lo que entra en la primera entrega. La regla de la sesión 2 sigue vigente: <b>lo que entreguen tiene que servirle a alguien de verdad el día que se publique.</b>';
+    }else if(!hayValor){
+      estado.innerHTML=' · <b class="alerta">sin valor visible</b>';
+      salida.innerHTML='<span class="alerta">Eligieron solo habilitadores.</span> El día de la publicación no hay nada que mostrarle al cliente: hay una base de datos y una pantalla de inicio de sesión.';
+    }else{
+      estado.innerHTML=' · <b>'+(CAPACIDAD-puntos)+' libres</b>';
+      salida.innerHTML='Vuelta 01 de <b>'+puntos+' puntos</b>. Ahora la pregunta de control: <b>¿quién es la persona concreta a la que le sirve esto el día que se publique?</b>'+
+        ITEMS.filter(function(it,k){return elegidos[k]}).slice(0,2).map(function(it){return '<br>· '+it.t+' — '+it.q}).join('');
+    }
+  }
+  document.getElementById('moscowLimpiar').onclick=function(){elegidos={};pintarMoscow()};
+
+  pintarVago(); pintarQuiz(false); pintarMoscow();
+})();
+</script>
+</body>
+</html>
