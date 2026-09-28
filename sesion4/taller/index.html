@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taller de modelado del análisis · EST323</title>
+<meta name="description" content="Las dos herramientas de la sesión 4: revisor de objetos de contenido y revisor de casos de uso.">
+<style>
+  :root{
+    --papel:#FCFBF9; --tinta:#16181C; --gris:#767A82; --gris-2:#A6AAB1;
+    --linea:#E4E1DB; --acento:#C8501E; --bien:#0E7A6C; --aviso:#B8860B;
+    --campo:#FFFFFF;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --papel:#141416; --tinta:#EDEBE7; --gris:#9A9EA6; --gris-2:#6E727A;
+           --linea:#2B2C30; --acento:#E4703F; --bien:#3FBFAC; --aviso:#D9A441;
+           --campo:#1C1D20; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--sans);
+       line-height:1.55;-webkit-font-smoothing:antialiased}
+  .marco{max-width:880px;margin:0 auto;padding:0 24px}
+  .rotulo{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gris-2);margin:0}
+  hr{border:0;border-top:1px solid var(--linea);margin:0}
+  h1{font-family:var(--serif);font-weight:400;line-height:1.08;
+     font-size:clamp(1.9rem,6vw,3rem);margin:46px 0 0}
+  h2{font-family:var(--serif);font-weight:400;font-size:1.5rem;margin:0 0 4px}
+  .intro{max-width:36em;color:var(--gris);margin:22px 0 0}
+
+  section{margin-top:56px;padding-top:26px;border-top:1px solid var(--linea)}
+  .n{font-size:.72rem;letter-spacing:.18em;color:var(--acento);font-weight:600;
+     display:block;margin-bottom:8px}
+  .consigna{color:var(--gris);margin:6px 0 18px;max-width:46em}
+
+  label{display:block;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;
+        color:var(--gris-2);margin:16px 0 6px}
+  textarea{width:100%;background:var(--campo);color:var(--tinta);border:1px solid var(--linea);
+           border-radius:6px;padding:12px 14px;font-family:var(--sans);font-size:.98rem;
+           line-height:1.6;resize:vertical}
+  textarea:focus{outline:none;border-color:var(--acento)}
+  button{margin-top:14px;background:var(--tinta);color:var(--papel);border:0;border-radius:6px;
+         padding:11px 22px;font-family:var(--sans);font-size:.95rem;cursor:pointer}
+  button:hover{background:var(--acento)}
+  button.otro{background:transparent;color:var(--gris);border:1px solid var(--linea);
+              margin-left:10px}
+  button.otro:hover{color:var(--acento);border-color:var(--acento);background:transparent}
+
+  .salida{margin-top:22px}
+  .fila{display:grid;grid-template-columns:1.6rem 1fr;gap:0 .9rem;padding:12px 0;
+        border-top:1px solid var(--linea);align-items:baseline}
+  .fila .marca{font-weight:700}
+  .ok .marca{color:var(--bien)}
+  .mal .marca{color:var(--acento)}
+  .duda .marca{color:var(--aviso)}
+  .fila .que{font-family:var(--serif);font-size:1.02rem}
+  .fila .por{color:var(--gris);font-size:.92rem;grid-column:2}
+  .resumen{margin-top:18px;padding-top:16px;border-top:2px solid var(--acento);
+           font-family:var(--serif);font-size:1.08rem}
+
+  .turno{margin-top:26px;padding:18px 20px;border:1px solid var(--linea);border-radius:8px;
+         background:var(--campo)}
+  .turno p{margin:0;color:var(--gris);font-size:.95rem}
+  .turno b{color:var(--tinta)}
+
+  footer{margin-top:70px;padding:20px 0 44px;border-top:1px solid var(--linea);
+         color:var(--gris-2);font-size:.85rem}
+  @media(max-width:560px){ .fila{grid-template-columns:1.3rem 1fr;gap:0 .6rem} }
+</style>
+</head>
+<body>
+
+<header class="marco">
+  <p class="rotulo">EST323 · Ingeniería de Software II · Sesión 4</p>
+  <h1>Taller de modelado<br>del análisis</h1>
+  <p class="intro">Dos herramientas para revisar lo que escriban antes de pasarlo a la
+  plantilla. No guardan nada ni necesitan internet: revisan el texto en su propio
+  navegador.</p>
+</header>
+
+<main class="marco">
+
+<section>
+  <span class="n">Herramienta A · Taller 1</span>
+  <h2>Revisor de objetos de contenido</h2>
+  <p class="consigna">Escriban un objeto por línea, con el nombre, dos puntos y sus atributos
+  separados por comas. La herramienta avisa cuando un objeto es en realidad una acción, cuando
+  le faltan atributos o cuando un atributo no dice nada.</p>
+
+  <label for="objetos">Sus objetos, uno por línea</label>
+  <textarea id="objetos" rows="7">Libro: título, autor, ISBN, materia
+Ejemplar: código, estado, estante
+Registrar préstamo: fecha, estudiante
+Usuario: datos
+Préstamo: fecha de salida, vencimiento, estudiante</textarea>
+  <button onclick="revisarObjetos()">Revisar</button>
+  <button class="otro" onclick="limpiar('objetos')">Vaciar y poner lo mío</button>
+  <div class="salida" id="salidaObjetos"></div>
+
+  <div class="turno">
+    <p><b>Tu turno.</b> Borren el ejemplo y peguen los cinco objetos de su proyecto. No pasen al
+    Taller 2 hasta que las cinco líneas salgan en verde: un objeto en rojo es una casilla que
+    después nadie sabe cómo programar.</p>
+  </div>
+</section>
+
+<section>
+  <span class="n">Herramienta B · Taller 2</span>
+  <h2>Revisor de casos de uso</h2>
+  <p class="consigna">Peguen el flujo principal y el alterno. La herramienta marca las palabras
+  de pantalla —clic, botón, ventana— que convierten un caso de uso en un manual, y comprueba que
+  el flujo tenga pasos suficientes y termine en algo que le sirva al actor.</p>
+
+  <label for="principal">Flujo principal</label>
+  <textarea id="principal" rows="4">El estudiante hace clic en el botón de búsqueda, escribe el título en el campo y presiona Enter. La pantalla muestra los resultados.</textarea>
+
+  <label for="alterno">Flujo alterno</label>
+  <textarea id="alterno" rows="3"></textarea>
+  <button onclick="revisarCaso()">Revisar</button>
+  <button class="otro" onclick="limpiar('principal');limpiar('alterno')">Vaciar y poner lo mío</button>
+  <div class="salida" id="salidaCaso"></div>
+
+  <div class="turno">
+    <p><b>Tu turno.</b> El ejemplo cargado está mal escrito a propósito: son cuatro pantallas
+    seguidas, no una intención. Arréglenlo primero —verán cómo cambia el veredicto— y después
+    peguen el suyo.</p>
+  </div>
+</section>
+
+<section>
+  <span class="n">Antes de entregar</span>
+  <h2>Los seis errores que devuelvo sin corregir</h2>
+  <div class="salida" id="listaErrores"></div>
+</section>
+
+</main>
+
+<footer class="marco">
+  Facultad de Ingeniería Estadística e Informática · Universidad Nacional del Altiplano, Puno
+</footer>
+
+<script>
+"use strict";
+
+function limpiar(id){ document.getElementById(id).value = ""; document.getElementById(id).focus(); }
+
+function fila(clase, marca, que, por){
+  return '<div class="fila ' + clase + '"><span class="marca">' + marca + '</span>' +
+         '<span class="que">' + que + '</span>' +
+         (por ? '<span class="por">' + por + '</span>' : '') + '</div>';
+}
+
+/* ---------- Herramienta A ---------- */
+
+// Un objeto es un sustantivo. Detectar la acción por la terminación no sirve: «Ejemplar»
+// y «Taller» acaban igual que un infinitivo. Se usa una lista de verbos frecuentes, que
+// prefiere dejar pasar un caso raro antes que marcar en rojo un objeto correcto.
+// «Préstamo» y «Devolución» sí son objetos: son hechos que la aplicación guarda.
+var VERBOS = ["registrar", "consultar", "buscar", "prestar", "devolver", "gestionar",
+              "administrar", "crear", "eliminar", "borrar", "modificar", "actualizar",
+              "generar", "emitir", "validar", "calcular", "enviar", "recibir", "listar",
+              "mostrar", "ingresar", "asignar", "reservar", "renovar", "notificar",
+              "imprimir", "exportar", "importar", "iniciar", "cerrar", "controlar",
+              "verificar", "seleccionar", "agregar", "añadir", "anadir"];
+var GERUNDIO = /(ando|iendo)$/i;
+// Sustantivos que acaban como un gerundio y sí pueden ser objetos de contenido.
+var NO_GERUNDIO = ["comando", "operando", "sumando", "dividendo"];
+
+function pareceAccion(nombre){
+  var palabras = nombre.toLowerCase().split(/\s+/);
+  var primera = palabras[0];
+  if (VERBOS.indexOf(primera) >= 0) return true;
+  if (GERUNDIO.test(primera) && primera.length >= 8 && NO_GERUNDIO.indexOf(primera) < 0) return true;
+  return false;
+}
+var VAGOS = ["datos", "información", "informacion", "otros", "detalles", "varios", "datos varios",
+             "campos", "cosas", "atributos"];
+
+function revisarObjetos(){
+  var lineas = document.getElementById("objetos").value.split("\n")
+                 .map(function(l){ return l.trim(); }).filter(Boolean);
+  if (!lineas.length){
+    document.getElementById("salidaObjetos").innerHTML =
+      fila("duda", "·", "No hay nada que revisar", "Escriban al menos un objeto.");
+    return;
+  }
+  var html = "", buenos = 0;
+  lineas.forEach(function(linea){
+    var corte = linea.indexOf(":");
+    var nombre = (corte < 0 ? linea : linea.slice(0, corte)).trim();
+    var atributos = corte < 0 ? [] : linea.slice(corte + 1).split(",")
+                      .map(function(a){ return a.trim(); }).filter(Boolean);
+    var fallas = [];
+
+    if (pareceAccion(nombre)) {
+      fallas.push("«" + nombre + "» es una acción, no una cosa. Los objetos son sustantivos: " +
+                  "lo que se guarda es un Préstamo, no «registrar préstamo». La acción es una " +
+                  "operación y va en el Taller 3.");
+    }
+    if (corte < 0) {
+      fallas.push("No tiene atributos. Usen dos puntos y sepárenlos por comas.");
+    } else if (atributos.length < 3) {
+      fallas.push("Tiene " + atributos.length + " atributo" + (atributos.length === 1 ? "" : "s") +
+                  ". Hacen falta tres para saber qué guarda de verdad.");
+    }
+    var vagos = atributos.filter(function(a){ return VAGOS.indexOf(a.toLowerCase()) >= 0; });
+    if (vagos.length) {
+      fallas.push("«" + vagos.join("», «") + "» no dice nada: ¿qué guarda exactamente y qué " +
+                  "valores puede tomar?");
+    }
+
+    if (fallas.length) {
+      html += fila("mal", "✕", nombre || "(sin nombre)", fallas.join(" "));
+    } else {
+      buenos++;
+      html += fila("ok", "✓", nombre,
+                   atributos.length + " atributos. Falta decir en la hoja qué valores toma cada uno.");
+    }
+  });
+
+  var faltan = 5 - lineas.length;
+  var resumen = buenos + " de " + lineas.length + " objetos en pie";
+  if (faltan > 0) resumen += " · faltan " + faltan + " para llegar a los cinco que se entregan";
+  else if (buenos === lineas.length) resumen += " · listos para pasarlos a la hoja";
+  html += '<div class="resumen">' + resumen + "</div>";
+  document.getElementById("salidaObjetos").innerHTML = html;
+}
+
+/* ---------- Herramienta B ---------- */
+
+var PANTALLA = ["clic", "click", "botón", "boton", "pantalla", "ventana", "menú", "menu",
+                "pestaña", "pestana", "ícono", "icono", "checkbox", "desplegable", "popup",
+                "pop-up", "barra de", "presiona enter", "cuadro de texto"];
+
+function revisarCaso(){
+  var principal = document.getElementById("principal").value.trim();
+  var alterno = document.getElementById("alterno").value.trim();
+  var html = "";
+
+  if (!principal){
+    document.getElementById("salidaCaso").innerHTML =
+      fila("duda", "·", "Falta el flujo principal", "Escríbanlo y vuelvan a revisar.");
+    return;
+  }
+
+  var bajo = principal.toLowerCase();
+  var encontradas = PANTALLA.filter(function(p){ return bajo.indexOf(p) >= 0; });
+  if (encontradas.length){
+    html += fila("mal", "✕", "Describe pantallas, no intenciones",
+                 "Aparece «" + encontradas.join("», «") + "». Un caso de uso dice qué quiere " +
+                 "lograr el actor; cómo se ve la interfaz se decide después, en el diseño.");
+  } else {
+    html += fila("ok", "✓", "Describe lo que alguien quiere lograr",
+                 "No hay palabras de interfaz. Así sigue valiendo aunque cambie el diseño.");
+  }
+
+  var pasos = principal.split(/→|\.|;|\n/).map(function(t){ return t.trim(); })
+                .filter(function(t){ return t.length > 8; });
+  if (pasos.length < 3){
+    html += fila("duda", "!", "Tiene " + pasos.length + " paso" + (pasos.length === 1 ? "" : "s"),
+                 "Con menos de tres no se ve la conversación entre el actor y el sistema. " +
+                 "Separen los pasos con flechas o con puntos.");
+  } else {
+    html += fila("ok", "✓", pasos.length + " pasos identificados",
+                 "Suficiente para dibujar la secuencia del Taller 2.");
+  }
+
+  if (!alterno){
+    html += fila("mal", "✕", "No hay flujo alterno",
+                 "Es la mitad del valor del caso de uso: qué pasa cuando la búsqueda no " +
+                 "encuentra nada, cuando el dato no existe o cuando el servicio no responde.");
+  } else if (alterno.length < 30){
+    html += fila("duda", "!", "El flujo alterno es muy corto",
+                 "Digan qué situación lo dispara y qué hace el sistema entonces.");
+  } else {
+    html += fila("ok", "✓", "Tiene flujo alterno",
+                 "Comprueben que empiece por la situación que lo dispara, no por la respuesta.");
+  }
+
+  var fallos = (html.match(/class="fila mal"/g) || []).length;
+  var dudas = (html.match(/class="fila duda"/g) || []).length;
+  var veredicto = fallos ? "Todavía no: hay " + fallos + " cosa" + (fallos === 1 ? "" : "s") +
+                           " que corregir antes de pasarlo a la hoja."
+                 : dudas ? "Casi. Revisen los avisos y queda listo."
+                 : "Listo para la hoja y para el diagrama de secuencia.";
+  html += '<div class="resumen">' + veredicto + "</div>";
+  document.getElementById("salidaCaso").innerHTML = html;
+}
+
+/* ---------- Lista de errores ---------- */
+
+var ERRORES = [
+  ["Objeto sin atributos", "«Usuario», a secas. No dice qué guarda ni para qué sirve."],
+  ["Caso de uso de pantallas", "Describe botones en vez de la intención de alguien."],
+  ["Operación sin dueño", "No se sabe sobre qué objeto actúa ni qué cambia."],
+  ["Configuración inventada", "Tecnología elegida sin ninguna restricción que la obligue."],
+  ["Contradice el catálogo", "Aparece algo que ningún requisito de la sesión 3 pidió."],
+  ["Un solo modelo", "Entregan contenido y olvidan los otros tres. Son cuatro."]
+];
+
+document.getElementById("listaErrores").innerHTML = ERRORES.map(function(e, i){
+  return fila("mal", (i + 1) < 10 ? "0" + (i + 1) : String(i + 1), e[0], e[1]);
+}).join("");
+
+revisarObjetos();
+</script>
+</body>
+</html>
