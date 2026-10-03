@@ -13,3 +13,4 @@ abierta— y los documentos de trabajo en `sesionN/archivos/`.
 |---|---|---|
 | 3 | Formulación y análisis de requisitos | 26 de setiembre de 2026 |
 | 4 | Modelado del análisis | 29 de setiembre de 2026 |
+| 5 | Diseño de la arquitectura web | 6 de octubre de 2026 |

@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taller de arquitectura · EST323</title>
+<meta name="description" content="Las cuatro herramientas de la sesión 5: revisor del mapa y sus rutas, revisor de capas, clasificador de requisito, configuración o decisión, y revisor de ADR.">
+<style>
+  :root{
+    --papel:#FCFBF9; --tinta:#16181C; --gris:#767A82; --gris-2:#A6AAB1;
+    --linea:#E4E1DB; --acento:#C8501E; --bien:#0E7A6C; --aviso:#B8860B;
+    --campo:#FFFFFF;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    --mono:Consolas,"Courier New",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --papel:#141416; --tinta:#EDEBE7; --gris:#9A9EA6; --gris-2:#6E727A;
+           --linea:#2B2C30; --acento:#E4703F; --bien:#3FBFAC; --aviso:#D9A441;
+           --campo:#1C1D20; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--sans);
+       line-height:1.55;-webkit-font-smoothing:antialiased}
+  .marco{max-width:880px;margin:0 auto;padding:0 24px}
+  .rotulo{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gris-2);margin:0}
+  h1{font-family:var(--serif);font-weight:400;line-height:1.08;
+     font-size:clamp(1.9rem,6vw,3rem);margin:46px 0 0}
+  h2{font-family:var(--serif);font-weight:400;font-size:1.5rem;margin:0 0 4px}
+  .intro{max-width:36em;color:var(--gris);margin:22px 0 0}
+  .indice{margin:22px 0 0;padding:0;list-style:none;color:var(--gris);font-size:.94rem}
+  .indice li{padding:3px 0}
+  .indice a{color:var(--tinta);text-decoration:none;border-bottom:1px solid var(--linea)}
+  .indice a:hover{color:var(--acento);border-color:var(--acento)}
+
+  section{margin-top:56px;padding-top:26px;border-top:1px solid var(--linea)}
+  .n{font-size:.72rem;letter-spacing:.18em;color:var(--acento);font-weight:600;
+     display:block;margin-bottom:8px}
+  .consigna{color:var(--gris);margin:6px 0 18px;max-width:46em}
+  .consigna code, .fila code{font-family:var(--mono);font-size:.92em}
+
+  label{display:block;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;
+        color:var(--gris-2);margin:16px 0 6px}
+  textarea, input[type=text]{width:100%;background:var(--campo);color:var(--tinta);
+           border:1px solid var(--linea);border-radius:6px;padding:12px 14px;
+           font-family:var(--sans);font-size:.98rem;line-height:1.6;resize:vertical}
+  textarea.mono{font-family:var(--mono);font-size:.92rem}
+  textarea:focus, input[type=text]:focus{outline:none;border-color:var(--acento)}
+  button{margin-top:14px;background:var(--tinta);color:var(--papel);border:0;border-radius:6px;
+         padding:11px 22px;font-family:var(--sans);font-size:.95rem;cursor:pointer}
+  button:hover{background:var(--acento)}
+  button.otro{background:transparent;color:var(--gris);border:1px solid var(--linea);
+              margin-left:10px}
+  button.otro:hover{color:var(--acento);border-color:var(--acento);background:transparent}
+
+  .salida{margin-top:22px}
+  .fila{display:grid;grid-template-columns:1.6rem 1fr;gap:0 .9rem;padding:12px 0;
+        border-top:1px solid var(--linea);align-items:baseline}
+  .fila .marca{font-weight:700}
+  .ok .marca{color:var(--bien)}
+  .mal .marca{color:var(--acento)}
+  .duda .marca{color:var(--aviso)}
+  .fila .que{font-family:var(--serif);font-size:1.02rem}
+  .fila .por{color:var(--gris);font-size:.92rem;grid-column:2}
+  .resumen{margin-top:18px;padding-top:16px;border-top:2px solid var(--acento);
+           font-family:var(--serif);font-size:1.08rem}
+
+  .turno{margin-top:26px;padding:18px 20px;border:1px solid var(--linea);border-radius:8px;
+         background:var(--campo)}
+  .turno p{margin:0;color:var(--gris);font-size:.95rem}
+  .turno b{color:var(--tinta)}
+
+  /* clasificador */
+  .frase{padding:16px 0;border-top:1px solid var(--linea)}
+  .frase .texto{font-family:var(--serif);font-size:1.05rem;margin:0 0 10px}
+  .opciones{display:flex;flex-wrap:wrap;gap:8px}
+  .opciones button{margin:0;padding:7px 14px;font-size:.88rem;background:transparent;
+                   color:var(--tinta);border:1px solid var(--linea)}
+  .opciones button:hover{border-color:var(--acento);color:var(--acento);background:transparent}
+  .opciones button.elegida.acierto{background:var(--bien);border-color:var(--bien);color:#fff}
+  .opciones button.elegida.error{background:var(--acento);border-color:var(--acento);color:#fff}
+  .frase .explica{color:var(--gris);font-size:.92rem;margin:10px 0 0;display:none}
+  .frase.respondida .explica{display:block}
+  .marcador{margin-top:14px;font-family:var(--serif);font-size:1.05rem}
+
+  .dos{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+  @media(max-width:640px){ .dos{grid-template-columns:1fr} }
+
+  footer{margin-top:70px;padding:20px 0 44px;border-top:1px solid var(--linea);
+         color:var(--gris-2);font-size:.85rem}
+  @media(max-width:560px){ .fila{grid-template-columns:1.3rem 1fr;gap:0 .6rem}
+                           button.otro{margin-left:0} }
+</style>
+</head>
+<body>
+
+<header class="marco">
+  <p class="rotulo">EST323 · Ingeniería de Software II · Sesión 5</p>
+  <h1>Taller de arquitectura<br>de la aplicación web</h1>
+  <p class="intro">Cuatro herramientas para revisar lo que escriban antes de pasarlo a la
+  plantilla. No guardan nada ni necesitan internet: revisan el texto en su propio
+  navegador. Cada una trae un ejemplo de la biblioteca, con errores a propósito.</p>
+  <ul class="indice">
+    <li>A · <a href="#mapa">El mapa y sus rutas</a> — Taller 1</li>
+    <li>B · <a href="#capas">Las tres capas</a> — Taller 2</li>
+    <li>C · <a href="#clasificar">¿Requisito, configuración o decisión?</a> — antes del Taller 3</li>
+    <li>D · <a href="#adr">El revisor de ADR</a> — Taller 3</li>
+  </ul>
+</header>
+
+<main class="marco">
+
+<!-- ================================================================== -->
+<section id="mapa">
+  <span class="n">Herramienta A · Taller 1</span>
+  <h2>Revisor del mapa y sus rutas</h2>
+  <p class="consigna">Arriba, los objetos de su modelo de contenido, separados por comas. Abajo,
+  una página por línea: <code>Página | ruta | objetos que muestra</code>. La herramienta avisa
+  cuando un objeto se quedó sin página, cuando una página no muestra nada, cuando dos páginas
+  comparten ruta o cuando una ruta está mal escrita.</p>
+
+  <label for="objetosMapa">Objetos de su modelo de contenido</label>
+  <input type="text" id="objetosMapa" value="Libro, Ejemplar, Préstamo, Reserva">
+
+  <label for="paginas">Sus páginas, una por línea</label>
+  <textarea id="paginas" class="mono" rows="7">Inicio | / |
+Búsqueda | /buscar?q= | Libro
+Ficha del libro | /libros/{isbn} | Libro, Ejemplar
+Mis préstamos | /mis-prestamos | Préstamo
+Renovar | /Prestamos/{id}/Renovar préstamo | Préstamo
+Contacto | /contacto |</textarea>
+  <button onclick="revisarMapa()">Revisar</button>
+  <button class="otro" onclick="limpiar('paginas')">Vaciar y poner lo mío</button>
+  <div class="salida" id="salidaMapa"></div>
+
+  <div class="turno">
+    <p><b>Tu turno.</b> El ejemplo tiene tres fallas a propósito: un objeto sin página, una ruta
+    con mayúsculas y espacios, y una página que no muestra ningún objeto del modelo. Arréglenlas
+    y después peguen su mapa. «Inicio» puede quedarse sin objeto: es la puerta, no una página de
+    contenido.</p>
+  </div>
+</section>
+
+<!-- ================================================================== -->
+<section id="capas">
+  <span class="n">Herramienta B · Taller 2</span>
+  <h2>Revisor de capas</h2>
+  <p class="consigna">Un elemento por línea, con dos puntos y la capa: <code>elemento: modelo</code>,
+  <code>vista</code> o <code>controlador</code> (sirven <code>M</code>, <code>V</code> y
+  <code>C</code>). Las rutas empiezan con <code>/</code>; las operaciones, con un verbo
+  (<code>registrarDevolucion</code>); las páginas se nombran como páginas
+  (<code>Ficha del libro</code>). La herramienta aplica las dos reglas: la vista no calcula y
+  el modelo no sabe de pantallas.</p>
+
+  <label for="elementos">Sus elementos, uno por línea</label>
+  <textarea id="elementos" class="mono" rows="8">Ejemplar: modelo
+disponibilidadDe: vista
+registrarDevolucion: modelo
+/libros/{isbn}: controlador
+Ficha del libro: modelo
+renovarPrestamo: controlador
+Préstamo: modelo</textarea>
+  <button onclick="revisarCapas()">Revisar</button>
+  <button class="otro" onclick="limpiar('elementos')">Vaciar y poner lo mío</button>
+  <div class="salida" id="salidaCapas"></div>
+
+  <div class="turno">
+    <p><b>Tu turno.</b> Tres líneas del ejemplo están en la capa equivocada. Corríjanlas hasta
+    que salga todo en verde y después peguen las de su proyecto: todos los objetos y todas las
+    operaciones de su Práctica 3.</p>
+  </div>
+</section>
+
+<!-- ================================================================== -->
+<section id="clasificar">
+  <span class="n">Herramienta C · Antes del Taller 3</span>
+  <h2>¿Requisito, configuración o decisión?</h2>
+  <p class="consigna">Ocho frases sacadas de catálogos como los de la Práctica 2. Elijan qué es
+  cada una antes de ver la explicación. Las dos preguntas que deciden: ¿lo pidió o lo impone
+  alguien que no es del equipo? ¿Pueden cambiarlo mañana sin pedirle permiso a nadie?</p>
+
+  <div id="frases"></div>
+  <div class="marcador" id="marcador"></div>
+
+  <label for="fraseLibre">Prueben una frase de su catálogo</label>
+  <input type="text" id="fraseLibre" value="El sistema debe usar React y Supabase para ser rápido.">
+  <button onclick="clasificarLibre()">Clasificar</button>
+  <div class="salida" id="salidaLibre"></div>
+
+  <div class="turno">
+    <p><b>Tu turno.</b> Copien aquí, una por una, las frases de su catálogo que el profesor marcó
+    como «decisión técnica». La que salga como decisión de diseño es la que va a su ADR-01.</p>
+  </div>
+</section>
+
+<!-- ================================================================== -->
+<section id="adr">
+  <span class="n">Herramienta D · Taller 3</span>
+  <h2>Revisor de ADR</h2>
+  <p class="consigna">Llenen los campos del registro. La herramienta comprueba que el contexto
+  cite algo que los obligue a decidir, que haya al menos dos alternativas, que el porqué
+  compare con las descartadas y que las consecuencias tengan una que gana y otra que cuesta.</p>
+
+  <label for="adrTitulo">Título</label>
+  <input type="text" id="adrTitulo" value="ADR-01 · Usar React para la interfaz">
+
+  <label for="adrContexto">Contexto: qué los obliga a decidir</label>
+  <textarea id="adrContexto" rows="2">Necesitamos hacer la interfaz del catálogo.</textarea>
+
+  <div class="dos">
+    <div>
+      <label for="adrAlternativas">Alternativas consideradas, una por línea</label>
+      <textarea id="adrAlternativas" rows="4">React</textarea>
+    </div>
+    <div>
+      <label for="adrConsecuencias">Consecuencias, una por línea</label>
+      <textarea id="adrConsecuencias" rows="4">Es moderno y rápido.
+Todos en el equipo lo conocen.</textarea>
+    </div>
+  </div>
+
+  <label for="adrPorque">Decisión y por qué</label>
+  <textarea id="adrPorque" rows="2">React, porque es el más usado.</textarea>
+
+  <button onclick="revisarADR()">Revisar</button>
+  <button class="otro" onclick="cargarADRBueno()">Ver el de la biblioteca</button>
+  <button class="otro" onclick="vaciarADR()">Vaciar y poner lo mío</button>
+  <div class="salida" id="salidaADR"></div>
+
+  <div class="turno">
+    <p><b>Tu turno.</b> El ejemplo cargado es el ADR que casi todos escriben la primera vez: una
+    sola alternativa, un contexto que no obliga a nada y consecuencias que son publicidad.
+    Compárenlo con «Ver el de la biblioteca» y después escriban los dos suyos.</p>
+  </div>
+</section>
+
+<!-- ================================================================== -->
+<section>
+  <span class="n">Antes de entregar</span>
+  <h2>Los seis errores que devuelvo sin corregir</h2>
+  <div class="salida" id="listaErrores"></div>
+</section>
+
+</main>
+
+<footer class="marco">
+  Facultad de Ingeniería Estadística e Informática · Universidad Nacional del Altiplano, Puno
+</footer>
+
+<script>
+"use strict";
+
+function $(id){ return document.getElementById(id); }
+function limpiar(id){ $(id).value = ""; $(id).focus(); }
+function esc(t){
+  return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;");
+}
+function fila(clase, marca, que, por){
+  return '<div class="fila ' + clase + '"><span class="marca">' + marca + '</span>' +
+         '<span class="que">' + que + '</span>' +
+         (por ? '<span class="por">' + por + '</span>' : '') + '</div>';
+}
+function sinTildes(t){
+  return t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+function lista(t){
+  return t.split(/[,;]/).map(function(x){ return x.trim(); }).filter(Boolean);
+}
+function plural(n, uno, varios){ return n + " " + (n === 1 ? uno : varios); }
+
+/* ================= Herramienta A · mapa ================= */
+
+// Una ruta bien escrita: empieza con «/», sin espacios ni tildes, en minúsculas.
+// Los parámetros van entre llaves o con dos puntos: /libros/{isbn}, /libros/:isbn.
+var RUTA_VALIDA = /^\/[a-z0-9\-._~\/{}:?=&]*$/;
+
+function revisarMapa(){
+  var objetos = lista($("objetosMapa").value);
+  var lineas = $("paginas").value.split("\n").map(function(l){ return l.trim(); })
+                 .filter(Boolean);
+  if (!lineas.length){
+    $("salidaMapa").innerHTML = fila("duda", "·", "No hay páginas que revisar",
+                                     "Escriban al menos una, con su ruta.");
+    return;
+  }
+  var html = "", vistas = {}, rutas = {}, fallos = 0;
+  objetos.forEach(function(o){ vistas[sinTildes(o)] = 0; });
+
+  lineas.forEach(function(linea){
+    var partes = linea.split("|").map(function(p){ return p.trim(); });
+    var pagina = partes[0] || "(sin nombre)";
+    var ruta = partes[1] || "";
+    var muestra = lista(partes[2] || "");
+    var problemas = [];
+
+    if (!ruta){
+      problemas.push("No tiene ruta. Cada página necesita su dirección: así se enlaza y así se prueba.");
+    } else if (!RUTA_VALIDA.test(ruta)){
+      var motivos = [];
+      if (ruta.charAt(0) !== "/") motivos.push("no empieza con «/»");
+      if (/\s/.test(ruta)) motivos.push("tiene espacios");
+      if (/[A-ZÁÉÍÓÚÑ]/.test(ruta)) motivos.push("tiene mayúsculas");
+      if (/[áéíóúñü]/i.test(ruta)) motivos.push("tiene tildes o eñes");
+      if (!motivos.length) motivos.push("tiene caracteres que no van en una dirección");
+      problemas.push("La ruta «" + esc(ruta) + "» " + motivos.join(", ") +
+                     ". Escríbanla en minúsculas, con guiones: /prestamos/{id}/renovar.");
+    } else {
+      var clave = ruta.split("?")[0];
+      if (rutas[clave]) problemas.push("Repite la ruta de «" + esc(rutas[clave]) +
+                                       "». Dos páginas no pueden vivir en la misma dirección.");
+      else rutas[clave] = pagina;
+    }
+
+    var desconocidos = [];
+    muestra.forEach(function(m){
+      var k = sinTildes(m);
+      if (k in vistas) vistas[k]++;
+      else desconocidos.push(m);
+    });
+    if (!muestra.length && ruta !== "/"){
+      problemas.push("No muestra ningún objeto del modelo. O le falta el objeto, o la página sobra.");
+    }
+    if (desconocidos.length){
+      problemas.push("«" + esc(desconocidos.join("», «")) + "» no está entre sus objetos. " +
+                     "Si es un objeto nuevo, falta en el modelo de contenido.");
+    }
+
+    if (problemas.length){
+      fallos++;
+      html += fila("mal", "✕", esc(pagina), problemas.join(" "));
+    } else {
+      html += fila("ok", "✓", esc(pagina),
+                   ruta === "/" ? "La puerta de entrada. No necesita objeto."
+                                : "Ruta <code>" + esc(ruta) + "</code> · muestra " +
+                                  esc(muestra.join(", ")) + ".");
+    }
+  });
+
+  var huerfanos = objetos.filter(function(o){ return vistas[sinTildes(o)] === 0; });
+  if (huerfanos.length){
+    fallos++;
+    html += fila("mal", "✕", "Objetos sin página: " + esc(huerfanos.join(", ")),
+                 "Están en su modelo de contenido y no se ven en ninguna página. Nadie los va a " +
+                 "poder consultar. O les falta una página, o sobran en el modelo.");
+  } else if (objetos.length){
+    html += fila("ok", "✓", "Todos los objetos tienen dónde verse",
+                 plural(objetos.length, "objeto", "objetos") + " del modelo, cada uno en al menos una página.");
+  }
+
+  html += '<div class="resumen">' +
+          (fallos ? "Todavía no: " + plural(fallos, "cosa", "cosas") + " que corregir antes de pasar el mapa a la hoja."
+                  : "Mapa en pie: " + plural(lineas.length, "página", "páginas") + ", todas con ruta y con objeto.") +
+          "</div>";
+  $("salidaMapa").innerHTML = html;
+}
+
+/* ================= Herramienta B · capas ================= */
+
+var CAPAS = {m: "modelo", modelo: "modelo", model: "modelo",
+             v: "vista", vista: "vista", view: "vista",
+             c: "controlador", controlador: "controlador", controller: "controlador"};
+// Verbos que deciden, calculan o cambian datos: son reglas del negocio.
+var VERBOS_REGLA = ["registrar", "calcular", "validar", "contar", "verificar", "renovar",
+  "prestar", "devolver", "reservar", "buscar", "consultar", "guardar", "actualizar", "crear",
+  "eliminar", "borrar", "modificar", "asignar", "aprobar", "rechazar", "generar", "emitir",
+  "obtener", "listar", "filtrar", "agregar", "anadir", "cancelar", "notificar", "comprobar",
+  "disponibilidad", "estado", "total", "cobrar", "multar", "sancionar", "importar", "exportar"];
+// Verbos que solo muestran: son de la vista.
+var VERBOS_VISTA = ["mostrar", "pintar", "renderizar", "dibujar", "desplegar", "presentar",
+  "imprimir"];
+// Verbos que reciben y reparten: son del controlador.
+var VERBOS_CONTROL = ["atender", "recibir", "redirigir", "manejar", "enrutar", "despachar",
+  "procesarpeticion", "handle"];
+var PALABRAS_PAGINA = ["pagina", "pantalla", "formulario", "ficha", "listado", "vista",
+  "panel", "menu", "inicio", "tablero", "portada", "plantilla", "modal", "ventana",
+  "resultados", "boton"];
+
+function primeraPalabra(t){
+  // registrarDevolucion → registrar ; «Registrar devolución» → registrar
+  var m = sinTildes(t).match(/^[a-zñ]+/);
+  var p = m ? m[0] : "";
+  var camel = t.match(/^[a-záéíóúñ]+(?=[A-ZÁÉÍÓÚÑ])/);
+  return camel ? sinTildes(camel[0]) : p;
+}
+function empiezaCon(palabra, verbos){
+  return verbos.some(function(v){ return palabra.indexOf(v) === 0; });
+}
+
+function tipoDe(elemento){
+  var e = elemento.trim(), bajo = sinTildes(e);
+  if (/^(\/|get |post |put |patch |delete )/i.test(e)) return "ruta";
+  var palabras = bajo.split(/\s+/);
+  if (palabras.some(function(p){ return PALABRAS_PAGINA.indexOf(p) >= 0; })) return "pagina";
+  var primera = primeraPalabra(e);
+  if (empiezaCon(primera, VERBOS_VISTA)) return "operacion-vista";
+  if (empiezaCon(primera, VERBOS_CONTROL)) return "operacion-control";
+  if (empiezaCon(primera, VERBOS_REGLA) || /^[a-záéíóúñ]+[A-ZÁÉÍÓÚÑ]/.test(e)) return "operacion";
+  return "objeto";
+}
+
+var NOMBRE_TIPO = {ruta: "ruta", pagina: "página", "operacion-vista": "operación de vista",
+                   "operacion-control": "operación de control", operacion: "operación",
+                   objeto: "objeto"};
+var CAPA_ESPERADA = {ruta: "controlador", pagina: "vista", "operacion-vista": "vista",
+                     "operacion-control": "controlador", operacion: "modelo", objeto: "modelo"};
+
+function revisarCapas(){
+  var lineas = $("elementos").value.split("\n").map(function(l){ return l.trim(); })
+                 .filter(Boolean);
+  if (!lineas.length){
+    $("salidaCapas").innerHTML = fila("duda", "·", "No hay nada que revisar",
+                                      "Escriban al menos un elemento con su capa.");
+    return;
+  }
+  var html = "", malos = 0, dudas = 0, cuenta = {modelo: 0, vista: 0, controlador: 0};
+  lineas.forEach(function(linea){
+    // la capa va después de los últimos dos puntos: así sirven las rutas con «:isbn»
+    var corte = linea.lastIndexOf(":");
+    var elemento = (corte < 0 ? linea : linea.slice(0, corte)).trim();
+    var capaTxt = corte < 0 ? "" : sinTildes(linea.slice(corte + 1).trim());
+    var capa = CAPAS[capaTxt];
+    if (!capa){
+      dudas++;
+      html += fila("duda", "!", esc(elemento || linea),
+                   capaTxt ? "«" + esc(capaTxt) + "» no es una capa. Usen modelo, vista o controlador."
+                           : "Falta la capa. Escriban dos puntos y modelo, vista o controlador.");
+      return;
+    }
+    cuenta[capa]++;
+    var tipo = tipoDe(elemento), esperada = CAPA_ESPERADA[tipo];
+    if (capa === esperada){
+      html += fila("ok", "✓", esc(elemento) + " → " + capa,
+                   "Es " + NOMBRE_TIPO[tipo] + (tipo === "operacion" ? " que cambia o calcula datos" : "") +
+                   ", y va ahí.");
+      return;
+    }
+    malos++;
+    var por;
+    if (capa === "vista" && (tipo === "operacion" || tipo === "objeto")){
+      por = "La vista no calcula ni guarda. «" + esc(elemento) + "» es " + NOMBRE_TIPO[tipo] +
+            ": va al modelo, y la vista solo muestra lo que el modelo responde.";
+    } else if (capa === "controlador" && tipo === "operacion"){
+      por = "Controlador que decide. «" + esc(elemento) + "» aplica una regla del negocio: va " +
+            "al modelo. El controlador solo recibe el pedido y le pregunta al modelo.";
+    } else if (capa === "modelo" && tipo === "pagina"){
+      por = "El modelo no sabe que existen pantallas. Una página es de la vista.";
+    } else if (tipo === "ruta"){
+      por = "Una ruta es la puerta de entrada de un pedido: la atiende el controlador.";
+    } else {
+      por = "Es " + NOMBRE_TIPO[tipo] + "; lo esperable es " + esperada + ". Si tienen una " +
+            "razón para dejarlo en " + capa + ", escríbanla en la plantilla.";
+    }
+    html += fila("mal", "✕", esc(elemento) + " → " + capa, por);
+  });
+
+  ["modelo", "vista", "controlador"].forEach(function(c){
+    if (!cuenta[c]){
+      dudas++;
+      html += fila("duda", "!", "Nada en la capa " + c,
+                   "Con una capa vacía, la aplicación no funciona: ¿quién " +
+                   ({modelo: "guarda los datos", vista: "muestra el resultado",
+                     controlador: "recibe los pedidos"})[c] + "?");
+    }
+  });
+
+  html += '<div class="resumen">' +
+          (malos ? "Todavía no: " + plural(malos, "elemento", "elementos") + " en la capa equivocada."
+                 : dudas ? "Casi. Revisen los avisos."
+                 : "Las tres capas en orden: " + cuenta.modelo + " en el modelo, " + cuenta.vista +
+                   " en la vista y " + cuenta.controlador + " en el controlador.") +
+          "</div>";
+  $("salidaCapas").innerHTML = html;
+}
+
+/* ================= Herramienta C · clasificador ================= */
+
+var FRASES = [
+  ["El catálogo muestra la disponibilidad de un ejemplar en menos de 2 segundos con 50 usuarios a la vez.",
+   "requisito", "Lo pide el cliente y se puede probar: tiene número y forma de medirse. Es un requisito no funcional."],
+  ["Usaremos React para la interfaz.",
+   "decision", "Nadie se los exigió: lo eligieron ustedes y podrían cambiarlo mañana. Va en un ADR, con sus alternativas."],
+  ["El servidor que asigna la Oficina de Tecnologías corre Ubuntu 22.04 con PostgreSQL 14.",
+   "configuracion", "Se lo imponen. No pueden cambiarlo sin pedir permiso: es configuración, y condiciona sus decisiones."],
+  ["El bibliotecario registra la devolución con el código del ejemplar.",
+   "requisito", "Es algo que la aplicación tiene que hacer para alguien concreto. Requisito funcional."],
+  ["La base de datos será Supabase.",
+   "decision", "Es una elección del equipo. En la Práctica 2 apareció como requisito; su lugar es un ADR."],
+  ["Las computadoras del mostrador de la biblioteca solo tienen Chrome 109 sobre Windows 7.",
+   "configuracion", "Es un límite real del lado del cliente, que no eligieron. Toda decisión de interfaz tiene que respetarlo."],
+  ["El código se organiza en modelo, vista y controlador.",
+   "decision", "Es la arquitectura de la aplicación, y la eligen ustedes. También se escribe como ADR: por qué esa y no otra."],
+  ["Las cuentas de los estudiantes se validan contra el sistema de matrícula, que no se puede modificar.",
+   "configuracion", "Otro sistema que ya existe y que no controlan. Es una restricción impuesta."]
+];
+var ETIQUETAS = {requisito: "Requisito", configuracion: "Configuración", decision: "Decisión de diseño"};
+var respondidas = {};
+
+function pintarFrases(){
+  var html = "";
+  FRASES.forEach(function(f, i){
+    html += '<div class="frase" id="frase' + i + '"><p class="texto">' + (i + 1) + ". «" +
+            esc(f[0]) + "»</p><div class=\"opciones\">";
+    ["requisito", "configuracion", "decision"].forEach(function(k){
+      html += '<button type="button" data-frase="' + i + '" data-opcion="' + k + '">' +
+              ETIQUETAS[k] + "</button>";
+    });
+    html += '</div><p class="explica"></p></div>';
+  });
+  $("frases").innerHTML = html;
+  Array.prototype.forEach.call(document.querySelectorAll("#frases .opciones button"), function(b){
+    b.addEventListener("click", function(){ responder(+b.dataset.frase, b.dataset.opcion); });
+  });
+  actualizarMarcador();
+}
+
+function responder(i, opcion){
+  var f = FRASES[i], caja = $("frase" + i), acierto = opcion === f[1];
+  respondidas[i] = acierto;
+  Array.prototype.forEach.call(caja.querySelectorAll("button"), function(b){
+    b.classList.remove("elegida", "acierto", "error");
+    if (b.dataset.opcion === opcion) b.classList.add("elegida", acierto ? "acierto" : "error");
+  });
+  caja.classList.add("respondida");
+  caja.querySelector(".explica").innerHTML = (acierto ? "<b>Bien.</b> " :
+    "<b>No: es " + ETIQUETAS[f[1]].toLowerCase() + ".</b> ") + esc(f[2]);
+  actualizarMarcador();
+}
+
+function actualizarMarcador(){
+  var n = Object.keys(respondidas).length;
+  var bien = Object.keys(respondidas).filter(function(k){ return respondidas[k]; }).length;
+  $("marcador").textContent = n ? bien + " de " + n + " bien" +
+    (n === FRASES.length ? (bien === n ? " · listos para el Taller 3." : " · revisen las que fallaron antes del Taller 3.") : "")
+    : "Respondan las ocho.";
+}
+
+var TECNOLOGIAS = ["react", "angular", "vue", "svelte", "next", "supabase", "firebase", "mysql",
+  "mongodb", "mongo", "postgres", "postgresql", "sqlite", "django", "flask", "laravel", "node",
+  "express", "spring", "flutter", "kotlin", "swift", "docker", "kubernetes", "aws", "azure",
+  "vercel", "netlify", "heroku", "python", "java", "php", "javascript", "typescript", "tailwind",
+  "bootstrap", "mvc", "microservicios", "graphql", "api rest", "wordpress", "excel", "html",
+  "css", ".net", "c#"];
+var IMPUESTO = ["impone", "exige", "asigna", "ya existe", "ya tiene", "solo tiene", "solo tienen",
+  "no se puede modificar", "no se puede cambiar", "obligatorio", "por norma", "reglamento",
+  "institucional", "proporcionad", "nos dan", "nos dieron", "corre ", "instalado"];
+var ELIGEN = ["usaremos", "utilizaremos", "elegimos", "implementaremos", "se desarrollara en",
+  "se hara en", "se programara en", "preferimos", "con el framework"];
+var ACTORES = ["el sistema", "el catalogo", "la aplicacion", "el usuario", "el estudiante",
+  "el bibliotecario", "el docente", "el administrador", "permite", "debe", "registra", "muestra",
+  "consulta", "puede"];
+var VAGAS = ["rapido", "rapida", "amigable", "facil", "intuitiv", "moderno", "moderna",
+  "seguro", "segura", "eficiente", "robusto", "escalable", "agil"];
+
+function contiene(texto, lista){
+  return lista.filter(function(p){
+    if (p.length <= 4 && /^[a-z.#]+$/.test(p)) {
+      return new RegExp("(^|[^a-z])" + p.replace(/[.#]/g, "\\$&") + "([^a-z]|$)").test(texto);
+    }
+    return texto.indexOf(p) >= 0;
+  });
+}
+
+function clasificarLibre(){
+  var original = $("fraseLibre").value.trim();
+  if (!original){
+    $("salidaLibre").innerHTML = fila("duda", "·", "Escriban una frase", "");
+    return;
+  }
+  var t = " " + sinTildes(original) + " ";
+  var tecno = contiene(t, TECNOLOGIAS), impuesto = contiene(t, IMPUESTO),
+      eligen = contiene(t, ELIGEN), actores = contiene(t, ACTORES), vagas = contiene(t, VAGAS);
+  var medida = /\d/.test(t);
+  var html = "";
+
+  if (impuesto.length){
+    html += fila("ok", "▸", "Configuración",
+      "Habla de algo que les imponen («" + esc(impuesto[0].trim()) + "»). Anótenlo en la tabla de " +
+      "configuración y úsenlo como contexto de sus ADR." +
+      (tecno.length ? " Que nombre una tecnología no la vuelve decisión suya: se la dieron." : ""));
+  } else if (tecno.length && actores.length){
+    html += fila("mal", "✕", "Decisión de diseño disfrazada de requisito",
+      "Nombra «" + esc(tecno.join("», «")) + "» como si el cliente lo pidiera. Sáquenla del catálogo " +
+      "y escríbanla como ADR. Lo que quede, si es requisito, necesita una medida.");
+  } else if (tecno.length || eligen.length){
+    html += fila("ok", "▸", "Decisión de diseño",
+      "La eligieron ustedes" + (tecno.length ? " («" + esc(tecno.join("», «")) + "»)" : "") +
+      " y podrían cambiarla. Va en un ADR, con dos alternativas y sus consecuencias.");
+  } else if (actores.length){
+    html += fila("ok", "▸", "Requisito", "Dice qué hace la aplicación o para quién. Va en el catálogo.");
+  } else {
+    html += fila("duda", "?", "No lo sé decidir",
+      "Háganse las dos preguntas: ¿lo pidió o lo impone alguien de afuera? ¿Pueden cambiarlo " +
+      "mañana sin pedir permiso?");
+  }
+
+  if (vagas.length && !medida && !impuesto.length){
+    html += fila("duda", "!", "Hay palabras sin medida: «" + esc(vagas.join("», «")) + "»",
+      "Si esa parte es un requisito, le falta el número y la forma de medirlo. Si es un deseo, " +
+      "pregúntenle al cliente qué significa.");
+  }
+  $("salidaLibre").innerHTML = html;
+}
+
+/* ================= Herramienta D · ADR ================= */
+
+var MOTIVOS = ["requisito", "rf-", "rnf", "restriccion", "configuracion", "exige", "impone",
+  "plazo", "antes de", "solo tiene", "no tiene", "no estara", "usuarios",
+  "segundos", "presupuesto", "servidor", "la biblioteca", "el cliente", "la universidad"];
+var NEGATIVAS = ["cuesta", "pero", "riesgo", "depend", "no podremos", "no se puede", "no se pueden",
+  "no se carga", "limita", "limite", "lento", "costo", "perdemos", "obliga", "desventaja",
+  "en contra", "deuda", "migrar", "aprender", "curva", "mas dificil", "fuera del",
+  "atados", "pagar", "vence", "caro", "complica", "no funciona"];
+var POSITIVAS = ["gana", "permite", "rapido", "ventaja", "podemos", "ahorra", "facilita",
+  "mejora", "listo", "corre", "a favor", "sirve", "simple", "reduce", "conocen", "gratis"];
+
+function lineasDe(id){
+  return $(id).value.split("\n").map(function(l){ return l.replace(/^[-+·•*]\s*/, "").trim(); })
+           .filter(Boolean);
+}
+
+function revisarADR(){
+  var titulo = $("adrTitulo").value.trim();
+  var contexto = sinTildes($("adrContexto").value);
+  var alternativas = lineasDe("adrAlternativas");
+  var porque = $("adrPorque").value.trim();
+  var consecuencias = lineasDe("adrConsecuencias");
+  var html = "", malos = 0, dudas = 0;
+
+  if (/(el sistema|la aplicacion|el catalogo) debe/.test(sinTildes(titulo))){
+    dudas++;
+    html += fila("duda", "!", "El título suena a requisito",
+      "«El sistema debe…» es la forma de un requisito. Un ADR nombra lo que decidieron: " +
+      "«Usar Supabase para los datos del prototipo».");
+  }
+
+  if (contexto.trim().length < 25){
+    malos++;
+    html += fila("mal", "✕", "El contexto está vacío o es muy corto",
+      "Digan qué los obliga a decidir: un requisito, una restricción, un plazo.");
+  } else if (!contiene(" " + contexto + " ", MOTIVOS).length && !/\d/.test(contexto)){
+    dudas++;
+    html += fila("duda", "!", "El contexto no cita nada que obligue",
+      "No aparece un requisito, una restricción ni un dato. Sin eso, la decisión parece gusto. " +
+      "Ejemplo: «el servidor de la universidad llega en noviembre y la biblioteca exige PostgreSQL».");
+  } else {
+    html += fila("ok", "✓", "El contexto dice qué obliga a decidir", "");
+  }
+
+  if (alternativas.length < 2){
+    malos++;
+    html += fila("mal", "✕", plural(alternativas.length, "alternativa", "alternativas"),
+      "Si no hubo alternativas, no hubo decisión. Escriban al menos dos que alguien sensato " +
+      "habría elegido, además o en lugar de la que eligieron.");
+  } else {
+    html += fila("ok", "✓", plural(alternativas.length, "alternativa", "alternativas") + " consideradas",
+                 esc(alternativas.join(" · ")));
+  }
+
+  var bajoPorque = sinTildes(porque);
+  var descartadas = alternativas.filter(function(a){
+    var palabra = sinTildes(a).split(/[\s(,:]+/)[0];
+    return palabra.length > 2 && bajoPorque.indexOf(palabra) >= 0;
+  });
+  if (porque.length < 25){
+    malos++;
+    html += fila("mal", "✕", "Falta el porqué",
+      "Una línea que diga por qué esta opción gana a las otras, apoyada en el contexto.");
+  } else if (alternativas.length >= 2 && descartadas.length < 2 &&
+             !/(en cambio|a diferencia|mientras que|no elegimos|descartamos|obligaria|no sirve)/.test(bajoPorque)){
+    dudas++;
+    html += fila("duda", "!", "El porqué no compara",
+      "Explica la elegida pero no dice por qué no las otras. Nombren al menos una descartada " +
+      "y la razón.");
+  } else if (/(mas usado|mas popular|moderno|nos gusta|lo conocemos|es mejor)/.test(bajoPorque) &&
+             !contiene(" " + bajoPorque + " ", MOTIVOS).length){
+    dudas++;
+    html += fila("duda", "!", "El porqué es de gusto",
+      "«Es el más usado» o «es moderno» no es una razón para este proyecto. Apóyenlo en el contexto.");
+  } else {
+    html += fila("ok", "✓", "El porqué compara con lo descartado", "");
+  }
+
+  var negativas = consecuencias.filter(function(c){
+    return /^[−–]/.test(c) || contiene(" " + sinTildes(c) + " ", NEGATIVAS).length;
+  });
+  var positivas = consecuencias.filter(function(c){ return negativas.indexOf(c) < 0; });
+  if (!consecuencias.length){
+    malos++;
+    html += fila("mal", "✕", "Sin consecuencias", "Una que gana y una que cuesta. Las dos.");
+  } else if (!negativas.length){
+    malos++;
+    html += fila("mal", "✕", "Ninguna consecuencia cuesta",
+      "Una consecuencia sin costo no es un ADR: es publicidad. ¿Qué pierden, qué riesgo asumen, " +
+      "de qué pasan a depender?");
+  } else if (!positivas.length){
+    dudas++;
+    html += fila("duda", "!", "Solo hay costos",
+      "Si todo cuesta, ¿por qué la eligieron? Escriban también lo que ganan.");
+  } else {
+    html += fila("ok", "✓", "Consecuencias con las dos caras",
+      plural(positivas.length, "que gana", "que ganan") + " y " +
+      plural(negativas.length, "que cuesta", "que cuestan") + ".");
+  }
+
+  html += '<div class="resumen">' +
+          (malos ? "Todavía no: " + plural(malos, "cosa", "cosas") + " que corregir antes de pasarlo a la plantilla."
+                 : dudas ? "Casi. Revisen los avisos y queda listo."
+                 : "ADR listo para la plantilla.") + "</div>";
+  $("salidaADR").innerHTML = html;
+}
+
+function cargarADRBueno(){
+  $("adrTitulo").value = "ADR-01 · Datos y cuentas del prototipo en Supabase";
+  $("adrContexto").value = "El servidor de la universidad estará listo en noviembre, la biblioteca " +
+    "exige PostgreSQL (configuración) y el prototipo hay que mostrarlo antes.";
+  $("adrAlternativas").value = "Esperar el servidor de la universidad\nFirebase\nSupabase";
+  $("adrPorque").value = "Supabase, porque es PostgreSQL: pasar al servidor de la universidad es " +
+    "copiar la base. Firebase obligaría a rehacer los datos, y esperar el servidor nos deja sin " +
+    "prototipo.";
+  $("adrConsecuencias").value = "Gana: el prototipo corre esta semana.\nCuesta: los datos quedan " +
+    "fuera del campus, así que no se cargan datos reales de estudiantes.\nCuesta: dependemos del " +
+    "límite del plan gratuito hasta migrar.";
+  revisarADR();
+}
+
+function vaciarADR(){
+  ["adrTitulo", "adrContexto", "adrAlternativas", "adrPorque", "adrConsecuencias"]
+    .forEach(function(id){ $(id).value = ""; });
+  $("salidaADR").innerHTML = "";
+  $("adrTitulo").focus();
+}
+
+/* ================= Lista de errores ================= */
+
+var ERRORES = [
+  ["Estructura sin razón", "«Jerárquica», a secas. No dice por qué esa y no otra."],
+  ["Objeto sin página", "Está en el modelo de contenido y no aparece en el mapa."],
+  ["Vista que calcula", "La pantalla cuenta ejemplares o decide si se renueva."],
+  ["Controlador que decide", "Toda la regla del negocio metida en la ruta."],
+  ["ADR sin alternativas", "Si no había otra opción, no era una decisión."],
+  ["Sin trazabilidad", "Capas y páginas que no apuntan al modelo de análisis de la sesión 4."]
+];
+
+$("listaErrores").innerHTML = ERRORES.map(function(e, i){
+  return fila("mal", "0" + (i + 1), e[0], e[1]);
+}).join("");
+
+pintarFrases();
+revisarMapa();
+revisarCapas();
+</script>
+</body>
+</html>
