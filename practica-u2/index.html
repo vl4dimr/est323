@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Práctica de la Unidad II · EST323</title>
+<style>
+  :root { --fondo:#F7F7F4; --tarjeta:#fff; --tinta:#0F172A; --gris:#5B6478; --linea:#E3E5EA; --azul:#2563EB;
+          --verde:#15803D; --rojo:#B91C1C; --ambar:#B45309; --oscuro:#0B1220; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:var(--fondo); color:var(--tinta); font:16px/1.5 "Segoe UI", system-ui, sans-serif; }
+  body.examen { user-select:none; -webkit-user-select:none; }
+  h1, h2, .num { font-family:Bahnschrift, "Segoe UI", sans-serif; }
+  .marco { max-width:760px; margin:0 auto; padding:28px max(16px, env(safe-area-inset-left)) 120px; }
+  .rotulo { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gris); font-weight:600; }
+  h1 { font-size:30px; line-height:1.15; margin:6px 0 14px; }
+  .tarjeta { background:var(--tarjeta); border:1px solid var(--linea); border-radius:14px; padding:22px; margin:14px 0; }
+  .reglas li { margin:6px 0; }
+  label.campo { display:block; font-weight:600; margin:14px 0 4px; }
+  input[type=text] { width:100%; font:inherit; padding:11px 12px; border:1px solid #C9CDD6; border-radius:10px; }
+  button { font:inherit; font-weight:600; border:0; border-radius:10px; padding:12px 20px; cursor:pointer;
+           background:var(--azul); color:#fff; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  button.sec { background:#E8ECF5; color:var(--tinta); }
+  .barra { position:sticky; top:0; z-index:5; background:var(--oscuro); color:#fff; }
+  .barra .in { max-width:760px; margin:0 auto; padding:10px 16px; display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+  .barra .num { font-size:22px; color:#FCD34D; }
+  .pregunta h2 { font-size:17px; line-height:1.4; margin:4px 0 12px; font-family:"Segoe UI", sans-serif; }
+  .op { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--linea); border-radius:10px; margin:8px 0; cursor:pointer; }
+  .op:hover { border-color:#9DB5F5; }
+  .op input { margin-top:4px; accent-color:var(--azul); }
+  .op.marcada { border-color:var(--azul); background:#EEF3FE; }
+  .velo { position:fixed; inset:0; z-index:20; background:rgba(11,18,32,.96); color:#fff; display:flex;
+          align-items:center; justify-content:center; padding:24px; text-align:center; }
+  .velo .num { font-size:96px; line-height:1; color:#FCD34D; margin:12px 0; }
+  .grande { font-size:64px; line-height:1; margin:10px 0; }
+  .ok { color:var(--verde); } .mal { color:var(--rojo); }
+  .codigo { font:12px/1.4 Consolas, monospace; word-break:break-all; background:#F1F3F7; border-radius:8px; padding:10px; max-height:140px; overflow:auto; user-select:all; }
+  .pie { color:var(--gris); font-size:14px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="barra" id="barra" hidden><div class="in">
+  <span><b id="quien"></b></span>
+  <span>Respondidas <b id="cuenta">0</b> / 20</span>
+  <span>Quedan <span class="num" id="reloj">60:00</span></span>
+</div></div>
+
+<main class="marco">
+  <!-- 1 · datos -->
+  <section id="v-datos" hidden>
+    <div class="rotulo">EST323 · Ingeniería de Software II · FINESI · UNA Puno</div>
+    <h1>Práctica de la Unidad II · De las pruebas a la nube</h1>
+    <div class="tarjeta">
+      <b>Antes de empezar, lean las reglas:</b>
+      <ul class="reglas">
+        <li>Son <b>20 preguntas</b> de opción múltiple, 1 punto cada una, de la sesión 10 a la 15. Tienen <b>60 minutos</b>.</li>
+        <li>La práctica va en <b>pantalla completa</b>. No cambien de ventana ni de pestaña.</li>
+        <li>Se permite <b>una sola salida, de 10 segundos como máximo</b>. Si se pasan de 10 segundos o salen una segunda vez,
+            <b>la práctica se bloquea</b> y ya no la pueden terminar. Recargar la página cuenta como salida.</li>
+        <li>Al terminar ven su nota y la <b>registran en GitHub</b> con su cuenta. Sin registro, no hay nota.</li>
+      </ul>
+    </div>
+    <div class="tarjeta">
+      <label class="campo" for="nombre">Apellidos y nombres</label>
+      <input type="text" id="nombre" autocomplete="name">
+      <label class="campo" for="codigo">Código de estudiante</label>
+      <input type="text" id="codigo" inputmode="numeric" autocomplete="off">
+      <p class="pie">Usen la laptop, con su sesión de GitHub ya abierta en este navegador.</p>
+      <button id="empezar" disabled>Empezar en pantalla completa</button>
+    </div>
+  </section>
+
+  <!-- 2 · examen -->
+  <section id="v-examen" hidden>
+    <div id="lista"></div>
+    <div class="tarjeta" id="cierre">
+      <p id="faltan" class="pie"></p>
+      <button id="terminar">Terminar y ver mi nota</button>
+      <div id="confirmar" hidden>
+        <p><b>¿Seguro?</b> Después ya no se puede cambiar nada.</p>
+        <button id="si">Sí, terminar</button> <button class="sec" id="no">Seguir respondiendo</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · resultado -->
+  <section id="v-fin" hidden>
+    <div class="rotulo">Práctica de la Unidad II</div>
+    <h1 id="fin-titulo"></h1>
+    <div class="tarjeta" id="fin-nota"></div>
+    <div class="tarjeta">
+      <b>Último paso: registrar su entrega en GitHub.</b>
+      <p class="pie">Se abre una página de GitHub con su entrega <b>cifrada</b> ya escrita (solo el profesor la puede leer).
+         Pulsen <b>«Create»</b> o <b>«Submit new issue»</b> y listo. No cambien el texto.</p>
+      <button id="registrar">Registrar en GitHub</button>
+      <p class="pie">Si GitHub no abre, copien este código y súbanlo como texto a la tarea del aula virtual:</p>
+      <div class="codigo" id="codigo-entrega"></div>
+      <p><button class="sec" id="copiar">Copiar el código</button> <span id="copiado" class="pie"></span></p>
+    </div>
+  </section>
+</main>
+
+<!-- velo de salida -->
+<div class="velo" id="velo" hidden><div>
+  <div class="rotulo" style="color:#FCD34D">Salió de la práctica</div>
+  <h1>Vuelva ya. Esta es su única salida.</h1>
+  <div class="num" id="cuentaatras">10</div>
+  <p>Si no vuelve antes de llegar a cero, la práctica se bloquea.</p>
+  <button id="volver">Volver a la práctica</button>
+</div></div>
+
+<script>
+"use strict";
+const DATOS = [{"id": "p01", "s": "s10", "q": "¿Qué comprueba una prueba de integración de POST /api/avisos que no comprueba una prueba unitaria de registrarAviso?", "ops": ["Que el código siga las reglas de estilo del equipo", "Que la página de avisos se vea bien en el celular", "Que registrarAviso devuelva el objeto correcto sin levantar el servidor", "Que la ruta, la función y la base trabajen juntas, respondiendo por HTTP"], "h": "d5d9b65e04fa604711628a1304a48e419e13118af37802c4f2295e526764b2d3"}, {"id": "p02", "s": "s10", "q": "En un acta de aceptación «Dado / Cuando / Entonces», ¿qué se escribe en «Entonces»?", "ops": ["La acción que hace el usuario", "El nombre del integrante que programó la función", "Lo que se tiene que ver o pasar, de modo que otra persona lo pueda comprobar", "La situación de partida: quién es el usuario y qué datos hay"], "h": "2a8725cf212eccad1d325bc00af4067ff7a507b1a5c411cfabd0d0c5c1a9fcd6"}, {"id": "p03", "s": "s10", "q": "Un integrante subió el archivo .env con la clave de la base y lo borra en el siguiente commit. ¿Qué falta hacer?", "ops": ["Cambiar la clave, porque el .env sigue en la historia del repositorio", "Renombrarlo a .env.example y volver a subirlo", "Hacer un merge de su rama a main", "Nada: al borrarlo ya nadie lo puede ver"], "h": "6386b0a99ac4ed5045a6a6830c7223e71782e3698247846fc5388e6e0785040a"}, {"id": "p04", "s": "s10", "q": "¿Cuál es un buen mensaje de commit?", "ops": ["ya funciona", "final final", "cambios", "Agrega la prueba PI-03 del correo no registrado"], "h": "c8e0d81b50fbd4779fe60c47b8a010c3ca5a3c5875a885ecf436ee6a8c3f4ea1"}, {"id": "p05", "s": "s11", "q": "¿Qué mide el CLS de Lighthouse?", "ops": ["El contraste entre el texto y el fondo", "Cuánto tarda en aparecer el elemento más grande de la pantalla", "Cuántas peticiones hace la página al servidor", "Cuánto se mueve el contenido de la página mientras carga"], "h": "c51e2c3973e3654806dd6694b6b731b611b88bcb1f95aa7d09ed52798fb06d83"}, {"id": "p06", "s": "s11", "q": "Un equipo cambió algo pensando que arreglaba el CLS de su ficha, y el número no se movió. ¿Qué toca hacer?", "ops": ["Medir en modo escritorio, que siempre da mejor", "Darlo por arreglado, porque el cambio era razonable", "Quitar el elemento que se mueve, aunque el usuario lo necesite", "Buscar la causa real y volver a medir en las mismas condiciones"], "h": "74361b21689271ed8afc810b184c2019de34360e91823b719de77d0938012160"}, {"id": "p07", "s": "s11", "q": "En la pestaña Actions del repositorio sale «verde · 13 de 13». ¿Qué quiere decir?", "ops": ["Que Lighthouse dio 100 en las cuatro categorías", "Que pasaron las 13 pruebas escritas; lo que no tiene prueba no se revisó", "Que la aplicación ya está desplegada en internet", "Que la aplicación no tiene errores"], "h": "f7837d02423389663fe555e5d2ada22664177072a52b216d05a282f4a56b996c"}, {"id": "p08", "s": "s11", "q": "¿Cuándo se ejecuta normalmente un workflow de pruebas en GitHub Actions?", "ops": ["En cada push o pull request al repositorio", "Cada vez que alguien abre la página publicada", "Una vez al mes, de forma automática", "Solo cuando el profesor revisa el repositorio"], "h": "9bf8e1aaac090a8d6c17f5de55199fbe03dfe4b9328370f41b3c1e6e50dff7e8"}, {"id": "p09", "s": "s12", "q": "¿Qué es hacer ingeniería web reversa?", "ops": ["Volver a una versión anterior del proyecto en Git", "Copiar el código de otro sitio sin permiso", "Deducir cómo está hecho un sitio que ya existe, a partir de lo que muestra y lo que pide al servidor", "Escribir las pruebas después del código"], "h": "c0b8918b54aa80e2d7788660f0c910629169b464f10ae1d12745e9c8ba2360a1"}, {"id": "p10", "s": "s12", "q": "¿Cuándo conviene un CMS como WordPress en vez de programarlo todo?", "ops": ["Cuando el contenido cambia seguido y lo editan personas que no programan", "Cuando la lógica es propia, como los préstamos y los avisos de Estante", "Nunca: siempre es mejor programarlo todo", "Cuando se necesita la máxima seguridad posible"], "h": "13a4e59bfad248b5b214d17ecc4e0721f8c75d4b6368d5ac8bac9b57f6f764df"}, {"id": "p11", "s": "s13", "q": "En el lienzo de negocio de Estante, ¿quién usa la aplicación y quién la paga?", "ops": ["Nadie la paga, porque es software libre", "La usan y la pagan los estudiantes", "La usan estudiantes y bibliotecarios; la paga la universidad o la biblioteca", "La usa la universidad y la pagan los estudiantes"], "h": "b18d942fe3f8885f84c34bd8f5eb45a913e22e86e5a16229027d9e148f4a9496"}, {"id": "p12", "s": "s13", "q": "¿Qué manera de cobrar encaja mejor con Estante?", "ops": ["Una licencia o suscripción a la institución", "Cobrarle al estudiante por cada aviso", "Publicidad dentro del catálogo", "Una comisión por cada préstamo"], "h": "9bab7e104be76e06b269d7bdb4dc2fb13135a8093bb5d664e9bf50a0f11dd955"}, {"id": "p13", "s": "s13", "q": "GET /api/avisos?correo=ana@est.unap.edu.pe devolvía los avisos de Ana a cualquiera, sin iniciar sesión. ¿Qué riesgo del OWASP Top 10 es?", "ops": ["Configuración de seguridad incorrecta", "Inyección", "Fallas criptográficas", "A01 · Control de acceso roto"], "h": "dcac9d7ee2d5e821631c408640bc9ec548200bfc6d389ba7c17ed2fb1d251e7b"}, {"id": "p14", "s": "s13", "q": "¿Cómo se corrige el problema de GET /api/avisos?correo=…?", "ops": ["Cifrar la URL antes de enviarla", "Pedir en la página que nadie escriba correos ajenos", "Exigir sesión y tomar el correo de la sesión, no de la URL", "Esconder el campo del correo en la página"], "h": "48d364fec6b8c9a6114413a7b4c1fd9d6188ce8e5a907a280039b5550cb3f2e0"}, {"id": "p15", "s": "s14", "q": "Medida como celular de 360 px, la página de Estante ocupaba 608 px de ancho. ¿Cómo se arregla sin esconder contenido?", "ops": ["Bajando el zoom de la página al 60 %", "Con display: none en lo que no cabe", "Con anchos relativos y filas que bajan a una columna (media queries o flex-wrap)", "Pidiendo que usen el celular en horizontal"], "h": "967d80f304307ef5ecc80243842bd390f2f1482017806b11c2d0515d6b941756"}, {"id": "p16", "s": "s14", "q": "¿Cuánto debe medir como mínimo un botón o enlace que se toca con el dedo?", "ops": ["Unos 16 px de lado", "Unos 200 px de lado", "Lo mismo que mida el texto", "Unos 48 px de lado"], "h": "1bfecf96f4556f0bdbfe509836ec8c6521e27f55febcddf2d292a778132e3333"}, {"id": "p17", "s": "s14", "q": "¿Qué necesita una aplicación web para poder instalarse como PWA?", "ops": ["Una base de datos dentro del celular", "Un manifiesto, un service worker registrado y servirse por https", "Estar publicada en la Play Store", "Solo un ícono grande en la carpeta pública"], "h": "757b53bd03a7cfa2e9621c9b667944bdd1b4459fd76cee1bc67426daaedcb480"}, {"id": "p18", "s": "s14", "q": "¿Qué NO debe guardar el service worker en la caché del celular?", "ops": ["El logo de Estante", "El catálogo público de libros", "La hoja de estilos", "La página Mis avisos: es de una persona y va solo por la red, con no-store"], "h": "4ce8f52bde18d14292740a7043895b03adc1973227f1347c50a9c687af8cf99f"}, {"id": "p19", "s": "s15", "q": "¿Por qué el puerto, la base y las claves salen de variables de entorno y no van escritos en el código?", "ops": ["Porque cambian entre la laptop y la nube, y las claves no pueden ir en el repositorio", "Para que cada usuario elija su puerto desde la página", "Porque GitHub no deja subir números en el código", "Porque así el código corre más rápido"], "h": "79c15bebf475dadfbc8edf075cc79dad1e722bb3f8a0b893564dcf0550f23dc5"}, {"id": "p20", "s": "s15", "q": "¿Qué hace la prueba de humo después de desplegar?", "ops": ["Mide el CLS de cada página", "Revisa que el código siga las reglas de estilo", "Pide las páginas principales a la dirección https desde afuera y confirma que responden bien", "Borra la base para empezar con datos limpios"], "h": "3f9c8fb804fe6f8bcfd30a50b551f64b2bc2f1aadd96393ebb36c2821a9249b6"}];
+const SAL = "70aab3d2df889628", PUBLICA = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv8hp88r5c5gzKLQNYb2wLWnvGgLqxg/48Bg6nOtseHcyZaaWELe0uOzQbCFEJ+bhT6hBcFkAOy6SM5xjaAQ9wWnaoVWILnMDZ01pgdgA1dnvk/5kNIHaWT0ICihJvT+0Q0p2gxeQwsD4tPOvin/gvBI+wKnYbYdw8TR2A5qcVOkmPqAS5JUpS9ouduRdF2/Ifj90yT0IdvZFKn57DjdBUivSS3WsSvyLcy9l9uFtRlkKEds4AZXn8ycB4rvvWcAaSBVuSAOUbkymOphYZgZ4bLzoyCaClbhfoUA0w1rh0mHs/7ADbuSbvvgm5ekkizn+aFayg+ZKsYvyD/zuuRLIFwIDAQAB", REPO = "vl4dimr/est323", MINUTOS = 60;
+const LIMITE = 10000, LLAVE = "est323-practica-u2";
+const $ = id => document.getElementById(id);
+const FS = !!(document.documentElement.requestFullscreen);
+
+let st = cargar() || { fase: "datos", resp: {}, salidas: [] };
+function cargar() { try { return JSON.parse(localStorage.getItem(LLAVE)); } catch (e) { return null; } }
+function guardar() { try { localStorage.setItem(LLAVE, JSON.stringify(st)); } catch (e) {} }
+
+function mezclar(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+/* ---------- vistas ---------- */
+function mostrar() {
+  for (const v of ["datos", "examen", "fin"]) $("v-" + v).hidden = true;
+  $("barra").hidden = st.fase !== "examen";
+  if (st.fase === "datos") $("v-datos").hidden = false;
+  if (st.fase === "examen") { pintarExamen(); $("v-examen").hidden = false; }
+  if (st.fase === "fin" || st.fase === "bloqueado") { pintarFin(); $("v-fin").hidden = false; }
+  document.body.classList.toggle("examen", st.fase === "examen");
+}
+
+function validarDatos() { $("empezar").disabled = !($("nombre").value.trim().length > 5 && /^\d{5,}$/.test($("codigo").value.trim())); }
+$("nombre").addEventListener("input", validarDatos);
+$("codigo").addEventListener("input", validarDatos);
+
+$("empezar").addEventListener("click", async () => {
+  st = { fase: "examen", nombre: $("nombre").value.trim(), codigo: $("codigo").value.trim(), resp: {}, salidas: [],
+         orden: mezclar(DATOS.map(d => d.id)), ops: Object.fromEntries(DATOS.map(d => [d.id, mezclar(d.ops.map((_, i) => i))])),
+         inicio: Date.now(), fuera: null, agente: navigator.userAgent };
+  guardar();
+  await pantallaCompleta();
+  mostrar();
+  reloj();
+});
+
+async function pantallaCompleta() { if (FS && !document.fullscreenElement) { try { await document.documentElement.requestFullscreen(); } catch (e) {} } }
+
+function pintarExamen() {
+  $("quien").textContent = st.nombre + " · " + st.codigo;
+  const porId = Object.fromEntries(DATOS.map(d => [d.id, d]));
+  const lista = $("lista");
+  lista.innerHTML = "";
+  st.orden.forEach((id, n) => {
+    const d = porId[id];
+    const t = document.createElement("div");
+    t.className = "tarjeta pregunta";
+    t.innerHTML = `<div class="rotulo">Pregunta ${n + 1} de 20</div><h2></h2>`;
+    t.querySelector("h2").textContent = d.q;
+    st.ops[id].forEach(k => {
+      const l = document.createElement("label");
+      l.className = "op" + (st.resp[id] === k ? " marcada" : "");
+      l.innerHTML = `<input type="radio" name="${id}"><span></span>`;
+      l.querySelector("span").textContent = d.ops[k];
+      const r = l.querySelector("input");
+      r.checked = st.resp[id] === k;
+      r.addEventListener("change", () => {
+        st.resp[id] = k; guardar();
+        t.querySelectorAll(".op").forEach(o => o.classList.remove("marcada"));
+        l.classList.add("marcada");
+        contar();
+      });
+      t.appendChild(l);
+    });
+    lista.appendChild(t);
+  });
+  contar();
+}
+function contar() {
+  const n = Object.keys(st.resp).length;
+  $("cuenta").textContent = n;
+  $("faltan").textContent = n < 20 ? `Les faltan ${20 - n} preguntas. Las que dejen en blanco valen cero.` : "Respondieron las 20.";
+}
+
+/* ---------- el tiempo ---------- */
+let tic = null;
+function reloj() {
+  clearInterval(tic);
+  tic = setInterval(() => {
+    if (st.fase !== "examen") return clearInterval(tic);
+    const queda = st.inicio + MINUTOS * 60000 - Date.now();
+    if (queda <= 0) return terminar("tiempo");
+    const m = Math.floor(queda / 60000), s = Math.floor(queda / 1000) % 60;
+    $("reloj").textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    if (st.fuera) {
+      const lleva = Date.now() - st.fuera.desde;
+      $("cuentaatras").textContent = Math.max(0, Math.ceil((LIMITE - lleva) / 1000));
+      if (lleva > LIMITE) bloquear("Estuvo fuera más de 10 segundos.");
+    }
+  }, 250);
+}
+
+/* ---------- salidas: una sola, de 10 s como máximo ---------- */
+function afuera() { return document.hidden || !document.hasFocus() || (FS && !document.fullscreenElement); }
+
+function salir(como) {
+  if (st.fase !== "examen" || st.fuera) return;
+  if (st.salidas.length >= 1) {
+    st.salidas.push({ desde: Date.now(), hasta: Date.now(), como });
+    return bloquear("Salió por segunda vez (" + como + ").");
+  }
+  st.fuera = { desde: Date.now(), como };
+  guardar();
+  $("velo").hidden = false;
+}
+
+function volver() {
+  if (st.fase !== "examen" || !st.fuera || afuera()) return;
+  const lleva = Date.now() - st.fuera.desde;
+  st.salidas.push({ desde: st.fuera.desde, hasta: Date.now(), como: st.fuera.como });
+  st.fuera = null;
+  guardar();
+  if (lleva > LIMITE) return bloquear("Estuvo fuera " + Math.round(lleva / 1000) + " segundos.");
+  $("velo").hidden = true;
+}
+
+document.addEventListener("visibilitychange", () => document.hidden ? salir("cambió de pestaña o minimizó") : volver());
+window.addEventListener("blur", () => salir("cambió de ventana"));
+window.addEventListener("focus", volver);
+document.addEventListener("fullscreenchange", () => document.fullscreenElement ? volver() : salir("salió de pantalla completa"));
+$("volver").addEventListener("click", async () => { await pantallaCompleta(); window.focus(); volver(); });
+
+["copy", "cut", "paste", "contextmenu"].forEach(t => document.addEventListener(t, e => { if (st.fase === "examen") e.preventDefault(); }));
+
+function bloquear(motivo) {
+  if (st.fase !== "examen") return;
+  st.fase = "bloqueado"; st.motivo = motivo; st.fin = Date.now(); st.fuera = null;
+  guardar();
+  $("velo").hidden = true;
+  salirDePantallaCompleta();
+  mostrar();
+}
+
+/* ---------- terminar, nota y entrega ---------- */
+$("terminar").addEventListener("click", () => { $("confirmar").hidden = false; $("terminar").hidden = true; });
+$("no").addEventListener("click", () => { $("confirmar").hidden = true; $("terminar").hidden = false; });
+$("si").addEventListener("click", () => terminar("entregó"));
+
+function terminar(como) {
+  if (st.fase !== "examen") return;
+  st.fase = "fin"; st.como = como; st.fin = Date.now(); st.fuera = null;
+  guardar();
+  $("velo").hidden = true;
+  salirDePantallaCompleta();
+  mostrar();
+}
+function salirDePantallaCompleta() { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); }
+
+async function sha(t) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+async function nota() { let n = 0; for (const d of DATOS) if (st.resp[d.id] !== undefined && await sha(`${SAL}|${d.id}|${st.resp[d.id]}`) === d.h) n++; return n; }
+
+function b64(buf) { let s = ""; new Uint8Array(buf).forEach(x => s += String.fromCharCode(x)); return btoa(s); }
+async function cifrar(obj) {
+  const pub = await crypto.subtle.importKey("spki", Uint8Array.from(atob(PUBLICA), c => c.charCodeAt(0)), { name: "RSA-OAEP", hash: "SHA-256" }, false, ["encrypt"]);
+  const aes = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt"]);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const c = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, aes, new TextEncoder().encode(JSON.stringify(obj)));
+  const k = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, pub, await crypto.subtle.exportKey("raw", aes));
+  return "PU2." + b64(k) + "." + b64(iv) + "." + b64(c);
+}
+
+async function pintarFin() {
+  const n = await nota();
+  const fuera = st.salidas.reduce((a, s) => a + (s.hasta - s.desde), 0);
+  if (st.fase === "bloqueado") {
+    $("fin-titulo").innerHTML = '<span class="mal">Práctica bloqueada</span>';
+    $("fin-nota").innerHTML = `<p><b>${st.motivo}</b></p><p class="pie">Ya no puede seguir respondiendo. Registre igual su entrega:
+      el profesor ve lo que respondió hasta aquí y cuándo salió.</p>`;
+  } else {
+    $("fin-titulo").textContent = "Terminó la práctica.";
+    $("fin-nota").innerHTML = `<div class="rotulo">Su nota</div><div class="grande num ${n >= 11 ? "ok" : "mal"}">${n} / 20</div>
+      <p class="pie">${Object.keys(st.resp).length} respondidas · ${st.salidas.length ? "1 salida de " + Math.round(fuera / 1000) + " s" : "sin salidas"}${st.como === "tiempo" ? " · se acabó el tiempo" : ""}.
+      La nota es la que se calcula aquí; el profesor la confirma con su registro.</p>`;
+  }
+  if (!st.entrega) {
+    st.entrega = await cifrar({ v: 1, nombre: st.nombre, codigo: st.codigo, resp: st.resp, salidas: st.salidas,
+      fase: st.fase, motivo: st.motivo || null, como: st.como || null, inicio: st.inicio, fin: st.fin, nota_pagina: n, agente: st.agente });
+    st.ref = Math.random().toString(36).slice(2, 8).toUpperCase();
+    guardar();
+  }
+  $("codigo-entrega").textContent = st.entrega;
+}
+
+$("registrar").addEventListener("click", () => {
+  const titulo = "Práctica U2 · entrega " + st.ref;
+  const cuerpo = "Entrega cifrada de la Práctica de la Unidad II (EST323). No cambien este texto.\n\n```\n" + st.entrega + "\n```\n";
+  const url = `https://github.com/${REPO}/issues/new?title=${encodeURIComponent(titulo)}&body=${encodeURIComponent(cuerpo)}`;
+  const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
+});
+$("copiar").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(st.entrega); $("copiado").textContent = "Copiado."; }
+  catch (e) { const r = document.createRange(); r.selectNodeContents($("codigo-entrega")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $("copiado").textContent = "Selecciónelo y cópielo con Ctrl+C."; }
+});
+
+/* ---------- al abrir la página ---------- */
+if (st.fase === "examen") {
+  // recargar o volver a abrir la página cuenta como salida
+  if (!st.fuera) salir("recargó o cerró la página");
+  else if (Date.now() - st.fuera.desde > LIMITE) bloquear("Estuvo fuera más de 10 segundos.");
+  else $("velo").hidden = false;
+}
+mostrar();
+if (st.fase === "examen") reloj();
+</script>
+</body>
+</html>
